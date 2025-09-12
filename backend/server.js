@@ -115,3 +115,105 @@ app.post("/api/posts", async (req, res) => {
     res.status(500).json({ message: "Error al crear el post" });
   }
 });
+
+
+
+// Dar like o quitar like (toggle)
+app.post("/api/posts/:id/like", async (req, res) => {
+  const { user_id } = req.body; // id del usuario logueado
+  const post_id = req.params.id;
+
+  try {
+    // Verificamos si ya existe un like de este usuario en este post
+    const existing = await pool.query(
+      "SELECT * FROM likes WHERE post_id = $1 AND user_id = $2",
+      [post_id, user_id]
+    );
+
+    if (existing.rows.length > 0) {
+      // Si ya existe → quitar like
+      await pool.query(
+        "DELETE FROM likes WHERE post_id = $1 AND user_id = $2",
+        [post_id, user_id]
+      );
+      return res.json({ success: true, liked: false });
+    } else {
+      // Si no existe → dar like
+      await pool.query(
+        "INSERT INTO likes (post_id, user_id) VALUES ($1, $2)",
+        [post_id, user_id]
+      );
+      return res.json({ success: true, liked: true });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Error al dar like" });
+  }
+});
+
+// Obtener posts con likes + si el usuario actual ya dio like
+app.get("/api/posts/:userId", async (req, res) => {
+  const userId = req.params.userId;
+
+  try {
+    const result = await pool.query(`
+      SELECT posts.id, posts.content, posts.image_url, posts.created_at,
+             users.name AS user_name, users.avatar_url,
+             COUNT(likes.id) AS likes,
+             -- Chequea si el usuario ya dio like
+             BOOL_OR(likes.user_id = $1) AS liked_by_me
+      FROM posts
+      JOIN users ON posts.user_id = users.id
+      LEFT JOIN likes ON posts.id = likes.post_id
+      GROUP BY posts.id, users.name, users.avatar_url
+      ORDER BY posts.created_at DESC
+    `, [userId]);
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Error al obtener los posts" });
+  }
+});
+
+
+
+// Obtener comentarios de un post
+app.get("/api/posts/:postId/comments", async (req, res) => {
+  const { postId } = req.params;
+  try {
+    const result = await pool.query(`
+      SELECT comments.id, comments.content, comments.created_at,
+             users.name AS user_name, users.avatar_url
+      FROM comments
+      JOIN users ON comments.user_id = users.id
+      WHERE comments.post_id = $1
+      ORDER BY comments.created_at ASC
+    `, [postId]);
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Error al obtener comentarios" });
+  }
+});
+
+// Crear comentario en un post
+app.post("/api/posts/:postId/comments", async (req, res) => {
+  const { postId } = req.params;
+  const { user_id, content } = req.body;
+
+  try {
+    const result = await pool.query(`
+      INSERT INTO comments (post_id, user_id, content)
+      VALUES ($1, $2, $3)
+      RETURNING *
+    `, [postId, user_id, content]);
+
+    res.json({ success: true, comment: result.rows[0] });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Error al crear comentario" });
+  }
+});
+

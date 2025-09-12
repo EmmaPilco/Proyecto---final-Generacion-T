@@ -47,3 +47,19 @@
   background: #0044aa;
 }
 
+.register-text {
+  margin-top: 15px;
+  font-size: 0.9rem;
+  color: #333;
+  text-align: center;
+}
+
+.register-text a {
+  color: #0077cc;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.register-text a:hover {
+  text-decoration: underline;
+}

@@ -1,13 +1,31 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import "./navbar.css";
 
 export default function Navbar() {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    navigate("/login");
+  };
+
   return (
-    <nav style={{ padding: "10px", background: "#282c34", color: "#fff" }}>
-      <Link to="/" style={{ margin: "0 10px", color: "white" }}>Feed</Link>
-      <Link to="/login" style={{ margin: "0 10px", color: "white" }}>Login</Link>
-      <Link to="/register" style={{ margin: "0 10px", color: "white" }}>Registro</Link>
-      <Link to="/profile/1" style={{ margin: "0 10px", color: "white" }}>Mi Perfil</Link>
+    <nav className="navbar">
+      <div className="navbar-left">
+        {/* Aquí podrás poner tu logo más adelante */}
+        <div className="app-logo"></div>
+        <h1 className="app-title">ConnectIU</h1>
+      </div>
+
+      <div className="navbar-right">
+        <Link to="/feed" className="nav-link">Feed</Link>
+        <Link to="/profile/1" className="nav-link">Mi Perfil</Link>
+        <button className="logout-btn" onClick={handleLogout}>
+          Cerrar sesión
+        </button>
+      </div>
     </nav>
   );
 }

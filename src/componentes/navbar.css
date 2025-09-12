@@ -1,0 +1,65 @@
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #1e1e2f; /* color oscuro elegante */
+  padding: 12px 24px;
+  color: white;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.app-logo {
+  width: 40px;
+  height: 40px;
+  background: #ff4b5c; /* color característico (puedes cambiarlo) */
+  border-radius: 8px;
+}
+
+.app-title {
+  font-size: 20px;
+  font-weight: bold;
+  color: #ff4b5c; /* color corporativo */
+  margin: 0;
+}
+
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.nav-link {
+  text-decoration: none;
+  color: white;
+  font-weight: 500;
+  transition: color 0.3s;
+}
+
+.nav-link:hover {
+  color: #ff4b5c; /* hover en color corporativo */
+}
+
+.logout-btn {
+  background: #ff4b5c;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.3s;
+}
+
+.logout-btn:hover {
+  background: #e63946;
+}
+

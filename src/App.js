@@ -12,7 +12,6 @@ function App() {
   return (
     <Router>
       <div>
-        <h1 style={{ textAlign: "center" }}>ConectIU 🚀</h1>
         <Routes>
           <Route path="/" element={<Welcome />} />
           <Route path="/login" element={<Login />} />
