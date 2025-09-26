@@ -89,3 +89,30 @@
   font-size: 0.9rem;
   color: #777;
 }
+
+.edit-profile-form {
+  margin-top: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.edit-profile-form input,
+.edit-profile-form textarea {
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.edit-profile-form button {
+  padding: 10px;
+  background-color: #0066ff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.edit-profile-form button:hover {
+  background-color: #0050cc;
+}

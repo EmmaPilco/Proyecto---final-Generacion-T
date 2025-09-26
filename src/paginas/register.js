@@ -29,10 +29,13 @@ export default function Register() {
 
       const data = await res.json();
       if (data.success) {
+        // ✅ Guardamos el usuario real que viene del backend
+        localStorage.setItem("user", JSON.stringify(data.user));
+
         setMessage("Registro exitoso, ahora puedes iniciar sesión.");
         setTimeout(() => navigate("/login"), 1500);
       } else {
-        setMessage("Error al registrar.");
+        setMessage("Error al registrar: " + (data.message || ""));
       }
     } catch (err) {
       console.error(err);
@@ -42,17 +45,18 @@ export default function Register() {
 
   return (
     <div className="container">
-    <div className="form-container">
-      <h2>Registro</h2>
-      <form onSubmit={handleSubmit}>
-        <input type="text" name="name" placeholder="Nombre" onChange={handleChange} required />
-        <input type="text" name="username" placeholder="Usuario" onChange={handleChange} required />
-        <input type="email" name="email" placeholder="Correo electrónico" onChange={handleChange} required />
-        <input type="password" name="password" placeholder="Contraseña" onChange={handleChange} required />
-        <button type="submit">Registrarse</button>
-      </form>
-      <p>{message}</p>
-    </div>
+      <div className="form-container">
+        <h2>Registro</h2>
+        <form onSubmit={handleSubmit}>
+          <input type="text" name="name" placeholder="Nombre" onChange={handleChange} required />
+          <input type="text" name="username" placeholder="Usuario" onChange={handleChange} required />
+          <input type="email" name="email" placeholder="Correo electrónico" onChange={handleChange} required />
+          <input type="password" name="password" placeholder="Contraseña" onChange={handleChange} required />
+          <button type="submit">Registrarse</button>
+        </form>
+        <p>{message}</p>
+      </div>
     </div>
   );
 }
+

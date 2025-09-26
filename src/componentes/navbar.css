@@ -20,7 +20,7 @@
 .app-logo {
   width: 40px;
   height: 40px;
-  background: #ff4b5c; /* color característico (puedes cambiarlo) */
+  background: url("./logo/logo.jpeg") no-repeat center center/cover;
   border-radius: 8px;
 }
 

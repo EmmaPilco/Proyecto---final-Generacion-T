@@ -217,3 +217,71 @@ app.post("/api/posts/:postId/comments", async (req, res) => {
   }
 });
 
+// Obtener perfil de un usuario por su id
+app.get("/api/profile/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Datos del usuario
+    const userQuery = await pool.query(
+      "SELECT id, name, username, email, avatar_url, cover_url, bio FROM users WHERE id = $1",
+      [id]
+    );
+    if (userQuery.rows.length === 0) {
+      return res.status(404).json({ error: "Usuario no encontrado" });
+    }
+    const user = userQuery.rows[0];
+
+    // Seguidores (followers) -> cuántos lo siguen
+    const followersQuery = await pool.query(
+      "SELECT COUNT(*) FROM followers WHERE following_id = $1",
+      [id]
+    );
+
+    // Seguidos (following) -> a cuántos sigue
+    const followingQuery = await pool.query(
+      "SELECT COUNT(*) FROM followers WHERE follower_id = $1",
+      [id]
+    );
+
+    // Publicaciones del usuario
+    const postsQuery = await pool.query(
+      "SELECT id, content, image_url, created_at, updated_at FROM posts WHERE user_id = $1 ORDER BY created_at DESC",
+      [id]
+    );
+
+    res.json({
+      user: {
+        ...user,
+        followers: parseInt(followersQuery.rows[0].count, 10), // lo siguen
+        following: parseInt(followingQuery.rows[0].count, 10), // sigue a otros
+      },
+      posts: postsQuery.rows,
+    });
+  } catch (err) {
+    console.error("❌ Error en /api/profile/:id:", err);
+    res.status(500).json({ error: "Error obteniendo perfil" });
+  }
+});
+
+
+
+// Actualizar perfil
+app.put("/api/profile/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { avatar_url, cover_url, bio } = req.body;
+
+    const updateQuery = await pool.query(
+      `UPDATE users 
+       SET avatar_url = $1, cover_url = $2, bio = $3
+       WHERE id = $4 RETURNING id, name, username, email, avatar_url, cover_url, bio`,
+      [avatar_url, cover_url, bio, id]
+    );
+
+    res.json({ success: true, user: updateQuery.rows[0] });
+  } catch (err) {
+    console.error("❌ Error en PUT /api/profile/:id:", err);
+    res.status(500).json({ error: "Error actualizando perfil" });
+  }
+});

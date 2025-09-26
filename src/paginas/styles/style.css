@@ -1,61 +1,79 @@
+/* Fondo general */
 .container {
+  display: flex;
+  justify-content: center; /* Centrar horizontalmente */
+  align-items: center;     /* Centrar verticalmente */
+  min-height: 100vh;       /* Ocupa toda la pantalla */
   background: linear-gradient(135deg, #667eea, #764ba2);
-  width: 100vw; /* Ancho completo de la ventana */
-  height: 90vh; /* Alto completo de la ventana */
-  justify-content: center; /* Centrado horizontal */
-  align-items: center; /* Centrado vertical */
+  padding: 20px;
 }
 
+/* Caja del formulario */
 .form-container {
-  align-items: center;
+  width: 100%;
   max-width: 400px;
-  margin: 50px auto;
-  padding: 25px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+  padding: 30px;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
   text-align: center;
+  animation: fadeIn 0.8s ease-in-out;
 }
 
+/* Título */
 .form-container h2 {
   margin-bottom: 20px;
+  font-size: 1.8rem;
+  color: #333;
 }
 
+/* Formulario */
 .form-container form {
   display: flex;
   flex-direction: column;
   gap: 15px;
 }
 
+/* Inputs */
 .form-container input {
   padding: 12px;
   border: 1px solid #ccc;
   border-radius: 8px;
+  font-size: 1rem;
+  transition: border 0.3s ease;
 }
 
+.form-container input:focus {
+  border-color: #667eea;
+  outline: none;
+  box-shadow: 0 0 5px rgba(102, 126, 234, 0.4);
+}
+
+/* Botón */
 .form-container button {
   padding: 12px;
-  background: #0066ff;
+  background: #667eea;
   color: white;
   border: none;
   border-radius: 8px;
+  font-size: 1rem;
   cursor: pointer;
-  transition: 0.3s;
+  transition: background 0.3s ease, transform 0.2s ease;
 }
 
 .form-container button:hover {
-  background: #0044aa;
+  background: #4c51bf;
 }
 
+/* Texto  */
 .register-text {
   margin-top: 15px;
-  font-size: 0.9rem;
-  color: #333;
-  text-align: center;
+  font-size: 0.95rem;
+  color: #444;
 }
 
 .register-text a {
-  color: #0077cc;
+  color: #667eea;
   font-weight: bold;
   text-decoration: none;
 }
@@ -63,3 +81,10 @@
 .register-text a:hover {
   text-decoration: underline;
 }
+
+/* Animación suave */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
