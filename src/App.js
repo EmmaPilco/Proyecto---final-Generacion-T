@@ -6,6 +6,7 @@ import Login from "./paginas/login";
 import Register from "./paginas/register";
 import Feed from "./paginas/feed";
 import Profile from "./paginas/profile";
+import Usuarios from "./paginas/usuarios";
 import PrivateRoute from "./rutaprivada";
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
           <Route path="/feed" element={<PrivateRoute><Navbar /><Feed /></PrivateRoute>} />
           <Route path="/profile/:id" element={<PrivateRoute><Navbar /><Profile /></PrivateRoute>} />
           {/*<Route path="/profile/:id" element={<><Navbar /><Profile /></>} />*/}
+          <Route path="/usuarios" element={<PrivateRoute><Navbar /><Usuarios /></PrivateRoute>} />
 
         </Routes>
       </div>

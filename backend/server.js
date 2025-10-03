@@ -285,3 +285,134 @@ app.put("/api/profile/:id", async (req, res) => {
     res.status(500).json({ error: "Error actualizando perfil" });
   }
 });
+
+
+
+app.post("/api/follow/:id", async (req, res) => {
+  const followerId = req.user.id; // usuario logueado (desde token)
+  const followingId = parseInt(req.params.id);
+
+  if (followerId === followingId) {
+    return res.status(400).json({ error: "No puedes seguirte a ti mismo" });
+  }
+
+  try {
+    await pool.query(
+      `INSERT INTO followers (follower_id, following_id, created_at)
+       VALUES ($1, $2, NOW())
+       ON CONFLICT (follower_id, following_id) DO NOTHING`,
+      [followerId, followingId]
+    );
+    res.json({ followed: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error al seguir usuario" });
+  }
+});
+
+app.delete("/api/follow/:id", async (req, res) => {
+  const followerId = req.user.id;
+  const followingId = parseInt(req.params.id);
+
+  try {
+    const result = await pool.query(
+      `DELETE FROM followers WHERE follower_id = $1 AND following_id = $2`,
+      [followerId, followingId]
+    );
+    res.json({ unfollowed: result.rowCount > 0 });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error al dejar de seguir usuario" });
+  }
+});
+
+app.get("/api/followers/:id", async (req, res) => {
+  const userId = parseInt(req.params.id);
+
+  try {
+    const result = await pool.query(
+      `SELECT u.id, u.username, u.foto_perfil
+       FROM followers f
+       JOIN users u ON f.follower_id = u.id
+       WHERE f.following_id = $1`,
+      [userId]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error al obtener seguidores" });
+  }
+});
+
+app.get("/api/following/:id", async (req, res) => {
+  const userId = parseInt(req.params.id);
+
+  try {
+    const result = await pool.query(
+      `SELECT u.id, u.username, u.foto_perfil
+       FROM followers f
+       JOIN users u ON f.following_id = u.id
+       WHERE f.follower_id = $1`,
+      [userId]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error al obtener seguidos" });
+  }
+});
+
+
+
+// Obtener amigos (seguimiento mutuo)
+app.get("/api/friends/:userId", async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const result = await pool.query(
+      `
+      SELECT u.id, u.name, u.username, u.avatar_url
+      FROM users u
+      INNER JOIN followers f1 ON f1.following_id = u.id
+      INNER JOIN followers f2 ON f2.follower_id = u.id
+      WHERE f1.follower_id = $1 AND f2.following_id = $1
+      `,
+      [userId]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error obteniendo amigos" });
+  }
+});
+
+
+
+// 🔎 Buscar usuarios
+app.get("/api/users/search", async (req, res) => {
+  const { q } = req.query;
+  try {
+    const result = await pool.query(
+      `SELECT id, name, username, avatar_url 
+       FROM users 
+       WHERE name ILIKE $1 OR username ILIKE $1
+       LIMIT 10`,
+      [`%${q}%`]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error al buscar usuarios" });
+  }
+});
+
+app.get("/api/users", async (req, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT id, name, username, avatar_url FROM users"
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error("Error obteniendo usuarios:", err);
+    res.status(500).json({ error: "Error obteniendo usuarios" });
+  }
+});

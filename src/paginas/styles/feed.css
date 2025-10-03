@@ -151,3 +151,63 @@ body {
 .like-btn.liked {
   color: #ff4b5c;
 }
+
+/* Layout general con sidebar de amigos */
+.feed-layout {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  padding: 20px;
+  align-items: flex-start;
+}
+
+/* Sidebar de amigos */
+.friends-sidebar {
+  width: 220px;
+  background: rgba(255, 255, 255);
+  border-radius: 12px;
+  padding: 15px;
+  height: fit-content;
+  position: sticky;
+  top: 20px;
+}
+
+.friends-sidebar h3 {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 12px;
+  color: #333;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 5px;
+}
+
+.friend-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  text-decoration: none;
+  color: #333;
+  font-size: 14px;
+  padding: 5px;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.friend-item:hover {
+  background: #f0f0f0;
+}
+
+.friend-avatar {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  margin-right: 10px;
+  border: 2px solid #ddd;
+}
+
+/* El feed ocupa lo demás */
+.feed-container {
+  flex: 1;
+  max-width: 600px;
+}
+

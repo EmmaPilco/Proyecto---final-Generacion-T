@@ -1,11 +1,16 @@
 import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom"; // 👈 para leer el :id de la URL
 import "./styles/profile.css";
 
 export default function Profile() {
+  const { id } = useParams(); // 👈 ID del perfil visitado
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
+  const [isFollowing, setIsFollowing] = useState(false); // 👈 nuevo estado
   const [formData, setFormData] = useState({ avatar_url: "", cover_url: "", bio: "" });
+
+  const storedUser = JSON.parse(localStorage.getItem("user"));
 
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
@@ -14,7 +19,8 @@ export default function Profile() {
       return;
     }
 
-    fetch(`http://localhost:4000/api/profile/${storedUser.id}`)
+    // Cargar el perfil del usuario visitado
+    fetch(`http://localhost:4000/api/profile/${id}`)
       .then((res) => res.json())
       .then((data) => {
         setProfile(data);
@@ -29,14 +35,21 @@ export default function Profile() {
         console.error(err);
         setLoading(false);
       });
-  }, []);
+
+    // Consultar si lo sigo (solo si no es mi perfil)
+    if (parseInt(id) !== storedUser.id) {
+      fetch(`http://localhost:4000/api/follow/check/${storedUser.id}/${id}`)
+        .then((res) => res.json())
+        .then((data) => setIsFollowing(data.isFollowing))
+        .catch((err) => console.error(err));
+    }
+  }, [id]);
 
   if (loading) return <p>Cargando perfil...</p>;
   if (!profile) return <p>Error cargando el perfil</p>;
 
   const user = profile.user || profile;
   const posts = profile.posts || [];
-  const storedUser = JSON.parse(localStorage.getItem("user"));
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -59,9 +72,50 @@ export default function Profile() {
     }
   };
 
+  const handleFollowToggle = async () => {
+    try {
+      if (isFollowing) {
+        // 👉 Dejar de seguir
+        const res = await fetch(`http://localhost:4000/api/follow/${user.id}`, {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+        });
+        const data = await res.json();
+        if (data.unfollowed) {
+          setIsFollowing(false);
+          setProfile((prev) => ({
+            ...prev,
+            user: {
+              ...prev.user,
+              followers: prev.user.followers - 1,
+            },
+          }));
+        }
+      } else {
+        // 👉 Seguir
+        const res = await fetch(`http://localhost:4000/api/follow/${user.id}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        });
+        const data = await res.json();
+        if (data.followed) {
+          setIsFollowing(true);
+          setProfile((prev) => ({
+            ...prev,
+            user: {
+              ...prev.user,
+              followers: prev.user.followers + 1,
+            },
+          }));
+        }
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   return (
     <div className="profile-container">
-      {/* Portada y avatar */}
       <div className="profile-header">
         <img
           src={user.cover_url || "https://picsum.photos/900/250?random=5"}
@@ -75,7 +129,6 @@ export default function Profile() {
         />
       </div>
 
-      {/* Info usuario */}
       <div className="profile-info">
         <h2>{user.name}</h2>
         <p className="username">@{user.username}</p>
@@ -85,8 +138,7 @@ export default function Profile() {
           <span>Seguidores: {user.followers || 0}</span>
         </div>
 
-        {/* Botón de edición solo si es tu perfil */}
-        {storedUser.id === user.id && (
+        {storedUser.id === user.id ? (
           <>
             <button onClick={() => setEditing(!editing)}>
               {editing ? "Cancelar" : "Editar Perfil"}
@@ -117,10 +169,13 @@ export default function Profile() {
               </div>
             )}
           </>
+        ) : (
+          <button onClick={handleFollowToggle}>
+            {isFollowing ? "Dejar de seguir" : "Seguir"}
+          </button>
         )}
       </div>
 
-      {/* Publicaciones */}
       <div className="profile-posts">
         {posts.length === 0 ? (
           <p>No publicaste nada aún.</p>
@@ -142,5 +197,4 @@ export default function Profile() {
     </div>
   );
 }
-
 
