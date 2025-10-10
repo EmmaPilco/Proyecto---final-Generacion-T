@@ -3,22 +3,46 @@ const cors = require("cors");
 const { Pool } = require("pg");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const multer = require("multer");
+const path = require("path");
 
 const app = express();
 const PORT = 4000;
 
-// Configuración de CORS y JSON
+DATABASE_URL="postgresql://postgres:[YOUR-PASSWORD]@db.avcuqzotrjchjpihcspi.supabase.co:5432/postgres"
+
 app.use(cors());
 app.use(express.json());
 
+const storage = multer.diskStorage({
+  destination: "uploads/",
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname));
+  },
+});
+
+const upload = multer({ storage });
+
+app.use("/uploads", express.static("uploads"));
+
 // Conexión a PostgreSQL
-const pool = new Pool({
-  user: "postgres",      // tu usuario de postgres
+/*const pool = new Pool({
+  user: "postgres",      
   host: "localhost",
-  database: "connectiu",  // la BD que creamos antes
+  database: "connectiu",  
   password: "12345", 
   port: 5432,
+});*/
+
+const pool = new Pool({
+  user: "postgres",
+  host: "db.avcuqzotrjchjpihcspi.supabase.co",
+  database: "postgres",
+  password: "theriver/_4774", 
+  port: 5432,
+  ssl: { rejectUnauthorized: false },
 });
+
 
 const SECRET_KEY = "conectiu_secret";
 
@@ -31,7 +55,6 @@ app.post("/api/register", async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Insertar en la Base de datos
     const result = await pool.query(
       "INSERT INTO users (name, username, email, password) VALUES ($1, $2, $3, $4) RETURNING id, name, username, email",
       [name, username, email, hashedPassword]
@@ -97,10 +120,16 @@ app.get("/api/posts", async (req, res) => {
   }
 });
 
-// Crear un nuevo post
-app.post("/api/posts", async (req, res) => {
+// Crear un nuevo post con imagen (si se envía)
+app.post("/api/posts", upload.single("image"), async (req, res) => {
   try {
-    const { user_id, content, image_url } = req.body;
+    const { user_id, content } = req.body;
+    let image_url = null;
+
+    // Si el usuario sube una imagen, la guardamos en /uploads/
+    if (req.file) {
+      image_url = `http://localhost:4000/uploads/${req.file.filename}`;
+    }
 
     const result = await pool.query(
       `INSERT INTO posts (user_id, content, image_url)
@@ -111,11 +140,10 @@ app.post("/api/posts", async (req, res) => {
 
     res.json({ success: true, post: result.rows[0] });
   } catch (err) {
-    console.error(err);
+    console.error("Error al crear post:", err);
     res.status(500).json({ message: "Error al crear el post" });
   }
 });
-
 
 
 // Dar like o quitar like (toggle)
@@ -289,10 +317,10 @@ app.put("/api/profile/:id", async (req, res) => {
 
 
 app.post("/api/follow/:id", async (req, res) => {
-  const followerId = req.user.id; // usuario logueado (desde token)
-  const followingId = parseInt(req.params.id);
+  const { follower_id } = req.body; // ID del usuario logueado
+  const following_id = parseInt(req.params.id);
 
-  if (followerId === followingId) {
+  if (follower_id === following_id) {
     return res.status(400).json({ error: "No puedes seguirte a ti mismo" });
   }
 
@@ -301,37 +329,59 @@ app.post("/api/follow/:id", async (req, res) => {
       `INSERT INTO followers (follower_id, following_id, created_at)
        VALUES ($1, $2, NOW())
        ON CONFLICT (follower_id, following_id) DO NOTHING`,
-      [followerId, followingId]
+      [follower_id, following_id]
     );
-    res.json({ followed: true });
+    res.json({ success: true, followed: true });
   } catch (err) {
-    console.error(err);
+    console.error("Error al seguir usuario:", err);
     res.status(500).json({ error: "Error al seguir usuario" });
   }
 });
 
+
 app.delete("/api/follow/:id", async (req, res) => {
-  const followerId = req.user.id;
-  const followingId = parseInt(req.params.id);
+  const { follower_id } = req.body;
+  const following_id = parseInt(req.params.id);
 
   try {
     const result = await pool.query(
       `DELETE FROM followers WHERE follower_id = $1 AND following_id = $2`,
-      [followerId, followingId]
+      [follower_id, following_id]
     );
-    res.json({ unfollowed: result.rowCount > 0 });
+    res.json({ success: true, unfollowed: result.rowCount > 0 });
   } catch (err) {
-    console.error(err);
+    console.error("Error al dejar de seguir:", err);
     res.status(500).json({ error: "Error al dejar de seguir usuario" });
   }
 });
 
+
+// Comprobar si follower_id sigue a following_id
+app.get("/api/follow/check/:followerId/:followingId", async (req, res) => {
+  try {
+    const followerId = parseInt(req.params.followerId, 10);
+    const followingId = parseInt(req.params.followingId, 10);
+
+    const result = await pool.query(
+      `SELECT 1 FROM followers WHERE follower_id = $1 AND following_id = $2 LIMIT 1`,
+      [followerId, followingId]
+    );
+
+    res.json({ isFollowing: result.rowCount > 0 });
+  } catch (err) {
+    console.error("Error en /api/follow/check:", err);
+    res.status(500).json({ error: "Error al comprobar follow" });
+  }
+});
+
+
+
 app.get("/api/followers/:id", async (req, res) => {
-  const userId = parseInt(req.params.id);
+  const userId = parseInt(req.params.id, 10);
 
   try {
     const result = await pool.query(
-      `SELECT u.id, u.username, u.foto_perfil
+      `SELECT u.id, u.name, u.username, u.avatar_url
        FROM followers f
        JOIN users u ON f.follower_id = u.id
        WHERE f.following_id = $1`,
@@ -339,17 +389,17 @@ app.get("/api/followers/:id", async (req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    console.error(err);
+    console.error("Error al obtener seguidores:", err);
     res.status(500).json({ error: "Error al obtener seguidores" });
   }
 });
 
 app.get("/api/following/:id", async (req, res) => {
-  const userId = parseInt(req.params.id);
+  const userId = parseInt(req.params.id, 10);
 
   try {
     const result = await pool.query(
-      `SELECT u.id, u.username, u.foto_perfil
+      `SELECT u.id, u.name, u.username, u.avatar_url
        FROM followers f
        JOIN users u ON f.following_id = u.id
        WHERE f.follower_id = $1`,
@@ -357,10 +407,11 @@ app.get("/api/following/:id", async (req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    console.error(err);
+    console.error("Error al obtener seguidos:", err);
     res.status(500).json({ error: "Error al obtener seguidos" });
   }
 });
+
 
 
 

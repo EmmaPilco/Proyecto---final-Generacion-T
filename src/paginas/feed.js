@@ -55,14 +55,16 @@ export default function Feed() {
 
     try {
       const user = JSON.parse(localStorage.getItem("user"));
+      const formData = new FormData();
+      formData.append("user_id", user.id);
+      formData.append("content", newPost.content);
+      if (newPost.image) {
+        formData.append("image", newPost.image);
+      }
+
       const res = await fetch("http://localhost:4000/api/posts", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          user_id: user.id,
-          content: newPost.content,
-          image_url: null, // luego puedes implementar subida de imágenes
-        }),
+        body: formData, // sin headers JSON
       });
 
       const data = await res.json();

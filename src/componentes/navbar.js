@@ -11,13 +11,14 @@ export default function Navbar() {
   const timerRef = useRef(null);
   const wrapperRef = useRef(null);
 
+  const user = JSON.parse(localStorage.getItem("user"));
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     navigate("/login");
   };
 
-  // Cerrar dropdown si clickea fuera
   useEffect(() => {
     const onClick = (e) => {
       if (wrapperRef.current && !wrapperRef.current.contains(e.target)) {
@@ -30,7 +31,9 @@ export default function Navbar() {
 
   const fetchSearch = async (q) => {
     try {
-      const res = await fetch(`http://localhost:4000/api/users/search?q=${encodeURIComponent(q)}`);
+      const res = await fetch(
+        `http://localhost:4000/api/users/search?q=${encodeURIComponent(q)}`
+      );
       if (!res.ok) return;
       const data = await res.json();
       setResults(data);
@@ -66,7 +69,6 @@ export default function Navbar() {
         <div className="app-logo" />
         <h1 className="app-title">ConnectIU</h1>
 
-        {/* Buscador va aquí (después del logo) */}
         <div className="search-wrapper" ref={wrapperRef}>
           <input
             className="search-input"
@@ -103,7 +105,11 @@ export default function Navbar() {
                       </div>
                     </Link>
                   ))}
-                  <Link to="/usuarios" className="search-see-all" onClick={handleSelect}>
+                  <Link
+                    to="/usuarios"
+                    className="search-see-all"
+                    onClick={handleSelect}
+                  >
                     Ver todos los usuarios
                   </Link>
                 </>
@@ -116,7 +122,11 @@ export default function Navbar() {
       <div className="navbar-right">
         <Link to="/feed" className="nav-link">Feed</Link>
         <Link to="/usuarios" className="nav-link">Usuarios</Link>
-        <Link to="/profile/1" className="nav-link">Mi Perfil</Link>
+
+        {user ? (<Link to={`/profile/${user.id}`} className="nav-link">
+            Mi Perfil
+          </Link>) : null}
+
         <button className="logout-btn" onClick={handleLogout}>Cerrar sesión</button>
       </div>
     </nav>

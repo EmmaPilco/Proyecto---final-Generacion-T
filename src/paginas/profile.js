@@ -79,6 +79,7 @@ export default function Profile() {
         const res = await fetch(`http://localhost:4000/api/follow/${user.id}`, {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ follower_id: storedUser.id }), // 🔥 agregado
         });
         const data = await res.json();
         if (data.unfollowed) {
@@ -96,6 +97,7 @@ export default function Profile() {
         const res = await fetch(`http://localhost:4000/api/follow/${user.id}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ follower_id: storedUser.id }), // 🔥 agregado
         });
         const data = await res.json();
         if (data.followed) {
@@ -113,6 +115,7 @@ export default function Profile() {
       console.error(err);
     }
   };
+
 
   return (
     <div className="profile-container">
