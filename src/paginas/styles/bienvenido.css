@@ -3,7 +3,7 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #dc2626, #991b1b);
   color: white;
 }
 
@@ -58,11 +58,11 @@
 
 .btn-login {
   background: white;
-  color: #667eea;
+  color: #dc2626;
 }
 
 .btn-register {
-  background: #764ba2;
+  background: #991b1b;
   color: white;
 }
 

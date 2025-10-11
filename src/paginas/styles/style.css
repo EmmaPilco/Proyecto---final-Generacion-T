@@ -4,7 +4,7 @@
   justify-content: center; /* Centrar horizontalmente */
   align-items: center;     /* Centrar verticalmente */
   min-height: 100vh;       /* Ocupa toda la pantalla */
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #dc2626, #991b1b);
   padding: 20px;
 }
 
@@ -44,15 +44,15 @@
 }
 
 .form-container input:focus {
-  border-color: #667eea;
+  border-color: #dc2626;
   outline: none;
-  box-shadow: 0 0 5px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 0 5px rgba(220, 38, 38, 0.4);
 }
 
 /* Botón */
 .form-container button {
   padding: 12px;
-  background: #667eea;
+  background: #dc2626;
   color: white;
   border: none;
   border-radius: 8px;
@@ -62,7 +62,7 @@
 }
 
 .form-container button:hover {
-  background: #4c51bf;
+  background: #991b1b;
 }
 
 /* Texto  */
@@ -73,7 +73,7 @@
 }
 
 .register-text a {
-  color: #667eea;
+  color: #dc2626;
   font-weight: bold;
   text-decoration: none;
 }

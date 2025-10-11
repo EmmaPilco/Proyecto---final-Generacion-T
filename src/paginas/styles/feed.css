@@ -6,8 +6,7 @@
 
 /* Fondo con imagen */
 body {
-  background: url("https://media.istockphoto.com/id/1433424243/es/vector/cielo-estrellado-aurora-y-astronom%C3%ADa.jpg?s=612x612&w=0&k=20&c=E8rZ72GOtIe4TLKomgB2YMvqeTgdJPBK3-cKcf9KOug=") no-repeat center center fixed;
-  background-size: cover;
+  background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
@@ -26,8 +25,8 @@ body {
   font-size: 1.8rem;
   font-weight: bold;
   margin-bottom: 15px;
-  color: #a9cdf1;
-  border-bottom: 2px solid #eee;
+  color: #dc2626;
+  border-bottom: 2px solid #e5e7eb;
   padding-bottom: 5px;
 }
 
@@ -70,7 +69,7 @@ body {
 }
 
 .post-actions button {
-  background: #ff4b5c;
+  background: #dc2626;
   color: white;
   border: none;
   padding: 8px 14px;
@@ -80,7 +79,7 @@ body {
 }
 
 .post-actions button:hover {
-  background: #e63946;
+  background: #991b1b;
 }
 
 /* Post */
@@ -145,11 +144,11 @@ body {
 }
 
 .like-btn:hover {
-  color: #ff4b5c;
+  color: #dc2626;
 }
 
 .like-btn.liked {
-  color: #ff4b5c;
+  color: #dc2626;
 }
 
 /* Layout general con sidebar de amigos */
@@ -176,8 +175,8 @@ body {
   font-size: 1.2rem;
   font-weight: bold;
   margin-bottom: 12px;
-  color: #333;
-  border-bottom: 1px solid #ddd;
+  color: #dc2626;
+  border-bottom: 1px solid #e5e7eb;
   padding-bottom: 5px;
 }
 
@@ -194,7 +193,7 @@ body {
 }
 
 .friend-item:hover {
-  background: #f0f0f0;
+  background: #fef2f2;
 }
 
 .friend-avatar {
