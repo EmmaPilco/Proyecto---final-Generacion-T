@@ -6,7 +6,8 @@
 
 /* Fondo con imagen */
 body {
-  background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+  background: url("https://media.istockphoto.com/id/1433424243/es/vector/cielo-estrellado-aurora-y-astronom%C3%ADa.jpg?s=612x612&w=0&k=20&c=E8rZ72GOtIe4TLKomgB2YMvqeTgdJPBK3-cKcf9KOug=") no-repeat center center fixed;
+  background-size: cover;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
