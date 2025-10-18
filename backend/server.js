@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 const express = require("express");
 const cors = require("cors");
 const { Pool } = require("pg");
@@ -9,7 +11,7 @@ const path = require("path");
 const app = express();
 const PORT = 4000;
 
-DATABASE_URL="postgresql://postgres:[YOUR-PASSWORD]@db.avcuqzotrjchjpihcspi.supabase.co:5432/postgres"
+
 
 app.use(cors());
 app.use(express.json());
@@ -25,22 +27,20 @@ const upload = multer({ storage });
 
 app.use("/uploads", express.static("uploads"));
 
-// Conexión a PostgreSQL
-/*const pool = new Pool({
-  user: "postgres",      
-  host: "localhost",
-  database: "connectiu",  
-  password: "12345", 
-  port: 5432,
-});*/
+
+const isRender = process.env.RENDER === "true";
+const connectionString = process.env.DATABASE_URL;
+
+if (!connectionString) {
+  console.error("❌ ERROR: No se encontró DATABASE_URL en .env");
+  process.exit(1);
+}
 
 const pool = new Pool({
-  user: "postgres",
-  host: "db.avcuqzotrjchjpihcspi.supabase.co",
-  database: "postgres",
-  password: "theriver/_4774", 
-  port: 5432,
-  ssl: { rejectUnauthorized: false },
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false, // 👈 Permite certificados autofirmados (Supabase)
+  },
 });
 
 
