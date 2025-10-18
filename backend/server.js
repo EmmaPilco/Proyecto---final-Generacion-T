@@ -9,9 +9,7 @@ const multer = require("multer");
 const path = require("path");
 
 const app = express();
-const PORT = 4000;
-
-
+const PORT = process.env.PORT || 4000;
 
 app.use(cors());
 app.use(express.json());
@@ -44,7 +42,7 @@ const pool = new Pool({
 });
 
 
-const SECRET_KEY = "conectiu_secret";
+const SECRET_KEY = process.env.SECRET_KEY || "conectiu_secret";
 
 // ----------------- RUTAS -----------------
 
@@ -126,9 +124,13 @@ app.post("/api/posts", upload.single("image"), async (req, res) => {
     const { user_id, content } = req.body;
     let image_url = null;
 
+    const baseUrl = process.env.RENDER
+    ? "https://connectiu-backend.onrender.com"
+    : "http://localhost:4000";
+
     // Si el usuario sube una imagen, la guardamos en /uploads/
     if (req.file) {
-      image_url = `http://localhost:4000/uploads/${req.file.filename}`;
+      image_url = `${baseUrl}/uploads/${req.file.filename}`;
     }
 
     const result = await pool.query(
