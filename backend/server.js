@@ -25,6 +25,8 @@ const upload = multer({ storage });
 
 app.use("/uploads", express.static("uploads"));
 
+const dns = require("dns");
+dns.setDefaultResultOrder("ipv4first");
 
 const isRender = process.env.RENDER === "true";
 const connectionString = process.env.DATABASE_URL;
