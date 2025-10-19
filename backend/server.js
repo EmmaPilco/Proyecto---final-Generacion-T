@@ -127,7 +127,7 @@ app.post("/api/posts", upload.single("image"), async (req, res) => {
     let image_url = null;
 
     const baseUrl = process.env.RENDER
-    ? "https://connectiu-backend.onrender.com"
+    ? "https://proyecto-final-generacion-t.onrender.com"
     : "http://localhost:4000";
 
     // Si el usuario sube una imagen, la guardamos en /uploads/
