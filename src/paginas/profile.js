@@ -20,7 +20,7 @@ export default function Profile() {
     }
 
     // Cargar el perfil del usuario visitado
-    fetch(`h${process.env.REACT_APP_API_URL}/api/profile/${id}`)
+    fetch(`${process.env.REACT_APP_API_URL}/api/profile/${id}`)
       .then((res) => res.json())
       .then((data) => {
         setProfile(data);

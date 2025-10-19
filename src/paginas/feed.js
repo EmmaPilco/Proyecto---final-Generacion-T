@@ -18,12 +18,12 @@ export default function Feed() {
         const user = JSON.parse(localStorage.getItem("user"));
 
         // 🔹 Posts
-        const resPosts = await fetch(`http://localhost:4000/api/posts/${user.id}`);
+        const resPosts = await fetch(`${process.env.REACT_APP_API_URL}/api/posts/${user.id}`);
         const dataPosts = await resPosts.json();
 
         const postsWithComments = await Promise.all(
           dataPosts.map(async (post) => {
-            const commentsRes = await fetch(`http://localhost:4000/api/posts/${post.id}/comments`);
+            const commentsRes = await fetch(`${process.env.REACT_APP_API_URL}/api/posts/${post.id}/comments`);
             const comments = await commentsRes.json();
             return { ...post, comments_list: comments };
           })
@@ -31,7 +31,7 @@ export default function Feed() {
         setPosts(postsWithComments);
 
         // 🔹 Amigos (seguimiento mutuo)
-        const resFriends = await fetch(`http://localhost:4000/api/friends/${user.id}`);
+        const resFriends = await fetch(`${process.env.REACT_APP_API_URL}/api/friends/${user.id}`);
         const dataFriends = await resFriends.json();
         setFriends(dataFriends);
       } catch (err) {
@@ -62,7 +62,7 @@ export default function Feed() {
         formData.append("image", newPost.image);
       }
 
-      const res = await fetch("http://localhost:4000/api/posts", {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/posts`, {
         method: "POST",
         body: formData, // sin headers JSON
       });
