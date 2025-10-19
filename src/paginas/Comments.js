@@ -9,7 +9,7 @@ export default function Comments({ postId, setPosts, posts }) {
   useEffect(() => {
     const fetchComments = async () => {
       try {
-        const res = await fetch(`http://localhost:4000/api/posts/${postId}/comments`);
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/posts/${postId}/comments`);
         const data = await res.json();
         setComments(data);
       } catch (err) {
@@ -26,7 +26,7 @@ export default function Comments({ postId, setPosts, posts }) {
     const user = JSON.parse(localStorage.getItem("user"));
 
     try {
-      const res = await fetch(`http://localhost:4000/api/posts/${postId}/comments`, {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/posts/${postId}/comments`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ user_id: user.id, content: newComment }),

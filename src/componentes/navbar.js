@@ -32,7 +32,7 @@ export default function Navbar() {
   const fetchSearch = async (q) => {
     try {
       const res = await fetch(
-        `http://localhost:4000/api/users/search?q=${encodeURIComponent(q)}`
+        `${process.env.REACT_APP_API_URL}/api/users/search?q=${encodeURIComponent(q)}`
       );
       if (!res.ok) return;
       const data = await res.json();

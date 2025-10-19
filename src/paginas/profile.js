@@ -20,7 +20,7 @@ export default function Profile() {
     }
 
     // Cargar el perfil del usuario visitado
-    fetch(`http://localhost:4000/api/profile/${id}`)
+    fetch(`h${process.env.REACT_APP_API_URL}/api/profile/${id}`)
       .then((res) => res.json())
       .then((data) => {
         setProfile(data);
@@ -38,7 +38,7 @@ export default function Profile() {
 
     // Consultar si lo sigo (solo si no es mi perfil)
     if (parseInt(id) !== storedUser.id) {
-      fetch(`http://localhost:4000/api/follow/check/${storedUser.id}/${id}`)
+      fetch(`${process.env.REACT_APP_API_URL}/api/follow/check/${storedUser.id}/${id}`)
         .then((res) => res.json())
         .then((data) => setIsFollowing(data.isFollowing))
         .catch((err) => console.error(err));
@@ -57,7 +57,7 @@ export default function Profile() {
 
   const handleSave = async () => {
     try {
-      const res = await fetch(`http://localhost:4000/api/profile/${storedUser.id}`, {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/profile/${storedUser.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -76,7 +76,7 @@ export default function Profile() {
     try {
       if (isFollowing) {
         // 👉 Dejar de seguir
-        const res = await fetch(`http://localhost:4000/api/follow/${user.id}`, {
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/follow/${user.id}`, {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ follower_id: storedUser.id }), // 🔥 agregado
@@ -94,7 +94,7 @@ export default function Profile() {
         }
       } else {
         // 👉 Seguir
-        const res = await fetch(`http://localhost:4000/api/follow/${user.id}`, {
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/follow/${user.id}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ follower_id: storedUser.id }), // 🔥 agregado
