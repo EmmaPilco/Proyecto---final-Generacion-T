@@ -471,3 +471,72 @@ app.get("/api/users", async (req, res) => {
     res.status(500).json({ error: "Error obteniendo usuarios" });
   }
 });
+
+
+
+// 📝 Editar una publicación
+app.put("/api/posts/:id", async (req, res) => {
+  try {
+    const postId = req.params.id;
+    const { user_id, content } = req.body;
+
+    if (!user_id || !content) {
+      return res.status(400).json({ success: false, message: "Faltan datos." });
+    }
+
+    const postCheck = await pool.query("SELECT * FROM posts WHERE id = $1", [postId]);
+
+    if (postCheck.rows.length === 0) {
+      return res.status(404).json({ success: false, message: "Publicación no encontrada." });
+    }
+
+    const post = postCheck.rows[0];
+    if (post.user_id !== parseInt(user_id)) {
+      return res.status(403).json({ success: false, message: "No autorizado." });
+    }
+
+    const updated = await pool.query(
+      "UPDATE posts SET content = $1 WHERE id = $2 RETURNING *",
+      [content, postId]
+    );
+
+    res.json({ success: true, post: updated.rows[0] });
+  } catch (err) {
+    console.error("Error al editar publicación:", err);
+    res.status(500).json({ success: false, message: "Error del servidor." });
+  }
+});
+
+// 🗑️ Eliminar una publicación
+app.delete("/api/posts/:id", async (req, res) => {
+  try {
+    const postId = req.params.id;
+    const { user_id } = req.body;
+
+    if (!user_id) {
+      return res.status(400).json({ success: false, message: "Falta el ID del usuario." });
+    }
+
+    const postCheck = await pool.query("SELECT * FROM posts WHERE id = $1", [postId]);
+
+    if (postCheck.rows.length === 0) {
+      return res.status(404).json({ success: false, message: "Publicación no encontrada." });
+    }
+
+    const post = postCheck.rows[0];
+    if (post.user_id !== parseInt(user_id)) {
+      return res.status(403).json({ success: false, message: "No autorizado." });
+    }
+
+    // ✅ Eliminar comentarios asociados (opcional pero recomendado)
+    await pool.query("DELETE FROM comments WHERE post_id = $1", [postId]);
+
+    // ✅ Eliminar la publicación
+    await pool.query("DELETE FROM posts WHERE id = $1", [postId]);
+
+    res.json({ success: true, message: "Publicación eliminada correctamente." });
+  } catch (err) {
+    console.error("Error al eliminar publicación:", err);
+    res.status(500).json({ success: false, message: "Error del servidor." });
+  }
+});

@@ -4,20 +4,25 @@ import Comments from "./Comments";
 import "./styles/feed.css";
 
 export default function Feed() {
+  const [user, setUser] = useState(() => JSON.parse(localStorage.getItem("user")));
   const [posts, setPosts] = useState([]);
   const [friends, setFriends] = useState([]);
-  const [newPost, setNewPost] = useState({
-    content: "",
-    image: null,
-  });
+  const [newPost, setNewPost] = useState({ content: "", image: null });
   const [preview, setPreview] = useState(null);
+  const [editingPostId, setEditingPostId] = useState(null);
+  const [editContent, setEditContent] = useState("");
+  const [menuOpenId, setMenuOpenId] = useState(null);
 
   useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) setUser(JSON.parse(storedUser));
+  }, []);
+
+  useEffect(() => {
+    if (!user?.id) return;
+
     const fetchData = async () => {
       try {
-        const user = JSON.parse(localStorage.getItem("user"));
-
-        // 🔹 Posts
         const resPosts = await fetch(`${process.env.REACT_APP_API_URL}/api/posts/${user.id}`);
         const dataPosts = await resPosts.json();
 
@@ -30,7 +35,6 @@ export default function Feed() {
         );
         setPosts(postsWithComments);
 
-        // 🔹 Amigos (seguimiento mutuo)
         const resFriends = await fetch(`${process.env.REACT_APP_API_URL}/api/friends/${user.id}`);
         const dataFriends = await resFriends.json();
         setFriends(dataFriends);
@@ -38,9 +42,11 @@ export default function Feed() {
         console.error("Error al cargar feed:", err);
       }
     };
-    fetchData();
-  }, []);
 
+    fetchData();
+  }, [user?.id]);
+
+  // Crear post
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -51,20 +57,17 @@ export default function Feed() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!newPost.content.trim()) return;
+    if (!newPost.content.trim() || !user) return;
 
     try {
-      const user = JSON.parse(localStorage.getItem("user"));
       const formData = new FormData();
       formData.append("user_id", user.id);
       formData.append("content", newPost.content);
-      if (newPost.image) {
-        formData.append("image", newPost.image);
-      }
+      if (newPost.image) formData.append("image", newPost.image);
 
       const res = await fetch(`${process.env.REACT_APP_API_URL}/api/posts`, {
         method: "POST",
-        body: formData, // sin headers JSON
+        body: formData,
       });
 
       const data = await res.json();
@@ -87,21 +90,19 @@ export default function Feed() {
     }
   };
 
+  // Like
   const handleLike = async (postId) => {
-    const user = JSON.parse(localStorage.getItem("user"));
-
+    if (!user) return;
     try {
       const res = await fetch(`${process.env.REACT_APP_API_URL}/api/posts/${postId}/like`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ user_id: user.id }),
       });
-
       const data = await res.json();
-
       if (data.success) {
-        setPosts((prevPosts) =>
-          prevPosts.map((p) =>
+        setPosts((prev) =>
+          prev.map((p) =>
             p.id === postId
               ? {
                   ...p,
@@ -117,9 +118,46 @@ export default function Feed() {
     }
   };
 
+  // Editar post
+  const handleEditPost = async (postId) => {
+    try {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/posts/${postId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id: user.id, content: editContent }),
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        setPosts((prev) =>
+          prev.map((p) => (p.id === postId ? { ...p, content: data.post.content } : p))
+        );
+        setEditingPostId(null);
+        setMenuOpenId(null);
+      }
+    } catch (err) {
+      console.error("Error al editar post:", err);
+    }
+  };
+
+  // Eliminar post
+  const handleDeletePost = async (postId) => {
+    if (!window.confirm("¿Seguro que deseas eliminar esta publicación?")) return;
+    try {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/posts/${postId}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id: user.id }),
+      });
+      const data = await res.json();
+      if (data.success) setPosts(posts.filter((p) => p.id !== postId));
+    } catch (err) {
+      console.error("Error al eliminar post:", err);
+    }
+  };
+
   return (
     <div className="feed-layout">
-      {/* 🔹 Sidebar de amigos */}
       <aside className="friends-sidebar">
         <h3>Amigos</h3>
         {friends.length === 0 ? (
@@ -138,9 +176,10 @@ export default function Feed() {
         )}
       </aside>
 
-      {/* 🔹 Sección principal (posts) */}
       <main className="feed-container">
         <h2 className="feed-title">Últimas publicaciones</h2>
+
+        {/* Crear publicación */}
         <div className="create-post">
           <form onSubmit={handleSubmit}>
             <textarea
@@ -162,21 +201,65 @@ export default function Feed() {
           </form>
         </div>
 
+        {/* Publicaciones */}
         {posts.map((post) => (
           <div key={post.id} className="post-card">
             <div className="post-header">
-              <img src={post.avatar_url} alt="avatar" className="avatar" />
-              <div>
-                <span className="user-name">{post.user_name}</span>
-                <span className="post-date">
-                  {new Date(post.created_at).toLocaleString()}
-                </span>
+              <div className="post-user">
+                <img src={post.avatar_url} alt="avatar" className="avatar" />
+                <div>
+                  <span className="user-name">{post.user_name}</span>
+                  <span className="post-date">{new Date(post.created_at).toLocaleString()}</span>
+                </div>
               </div>
+
+              {/* Menú tres puntos en la esquina */}
+              {user && user.id === post.user_id && (
+                <div className="menu-container">
+                  <button
+                    className="menu-btn"
+                    onClick={() => setMenuOpenId(menuOpenId === post.id ? null : post.id)}
+                  >
+                    ⋮
+                  </button>
+                  {menuOpenId === post.id && (
+                    <div className="menu-options">
+                      <button
+                        onClick={() => {
+                          setEditingPostId(post.id);
+                          setEditContent(post.content);
+                          setMenuOpenId(null);
+                        }}
+                      >
+                        Editar
+                      </button>
+                      <button className="danger" onClick={() => handleDeletePost(post.id)}>
+                        Eliminar
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
-            <p className="post-content">{post.content}</p>
-            {post.image_url && (
-              <img src={post.image_url} alt="post" className="post-image" />
+
+            {editingPostId === post.id ? (
+              <div className="edit-section">
+                <textarea
+                  value={editContent}
+                  onChange={(e) => setEditContent(e.target.value)}
+                />
+                <div className="edit-buttons">
+                  <button onClick={() => handleEditPost(post.id)}>Guardar</button>
+                  <button onClick={() => setEditingPostId(null)}>Cancelar</button>
+                </div>
+              </div>
+            ) : (
+              <>
+                <p className="post-content">{post.content}</p>
+                {post.image_url && <img src={post.image_url} alt="post" className="post-image" />}
+              </>
             )}
+
             <div className="post-footer">
               <button
                 className={`like-btn ${post.liked_by_me ? "liked" : ""}`}
@@ -184,8 +267,9 @@ export default function Feed() {
               >
                 👍 {post.likes}
               </button>
-              <span>💬 {post.comments_list ? post.comments_list.length : 0}</span>
+              <span>💬 {post.comments_list?.length || 0}</span>
             </div>
+
             <Comments postId={post.id} posts={posts} setPosts={setPosts} />
           </div>
         ))}
@@ -193,5 +277,3 @@ export default function Feed() {
     </div>
   );
 }
-
-
