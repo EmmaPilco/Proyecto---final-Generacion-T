@@ -473,6 +473,39 @@ app.get("/api/users", async (req, res) => {
 });
 
 
+// 🔥 Posts destacados (ordenados por cantidad de likes — safe)
+app.get("/api/posts/trending", async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT
+        p.id,
+        p.content,
+        p.image_url,
+        p.created_at,
+        u.id AS user_id,
+        u.name AS user_name,
+        u.username,
+        u.avatar_url,
+        COALESCE(likes_count, 0) AS likes_count
+      FROM posts p
+      JOIN users u ON u.id = p.user_id
+      LEFT JOIN (
+        SELECT post_id, COUNT(*) AS likes_count
+        FROM likes
+        GROUP BY post_id
+      ) lc ON lc.post_id = p.id
+      /* Si quieres SOLO posts con al menos 1 like, descomenta la siguiente línea */
+      -- WHERE COALESCE(likes_count, 0) > 0
+      ORDER BY COALESCE(likes_count, 0) DESC, p.created_at DESC
+      LIMIT 10
+    `);
+    res.json(result.rows);
+  } catch (err) {
+    console.error("Error al obtener destacados:", err);
+    res.status(500).json({ error: "Error al obtener posts destacados" });
+  }
+});
+
 
 // 📝 Editar una publicación
 app.put("/api/posts/:id", async (req, res) => {
@@ -541,38 +574,7 @@ app.delete("/api/posts/:id", async (req, res) => {
   }
 });
 
-// 🔥 Posts destacados (ordenados por cantidad de likes — safe)
-app.get("/api/posts/trending", async (req, res) => {
-  try {
-    const result = await pool.query(`
-      SELECT
-        p.id,
-        p.content,
-        p.image_url,
-        p.created_at,
-        u.id AS user_id,
-        u.name AS user_name,
-        u.username,
-        u.avatar_url,
-        COALESCE(likes_count, 0) AS likes_count
-      FROM posts p
-      JOIN users u ON u.id = p.user_id
-      LEFT JOIN (
-        SELECT post_id, COUNT(*) AS likes_count
-        FROM likes
-        GROUP BY post_id
-      ) lc ON lc.post_id = p.id
-      /* Si quieres SOLO posts con al menos 1 like, descomenta la siguiente línea */
-      -- WHERE COALESCE(likes_count, 0) > 0
-      ORDER BY COALESCE(likes_count, 0) DESC, p.created_at DESC
-      LIMIT 10
-    `);
-    res.json(result.rows);
-  } catch (err) {
-    console.error("Error al obtener destacados:", err);
-    res.status(500).json({ error: "Error al obtener posts destacados" });
-  }
-});
+
 
 
 // 👥 Usuarios sugeridos (excluye los que ya sigues)
