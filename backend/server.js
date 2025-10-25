@@ -540,3 +540,164 @@ app.delete("/api/posts/:id", async (req, res) => {
     res.status(500).json({ success: false, message: "Error del servidor." });
   }
 });
+
+// 🔥 Posts destacados (ordenados por cantidad de likes — safe)
+app.get("/api/posts/trending", async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT
+        p.id,
+        p.content,
+        p.image_url,
+        p.created_at,
+        u.id AS user_id,
+        u.name AS user_name,
+        u.username,
+        u.avatar_url,
+        COALESCE(likes_count, 0) AS likes_count
+      FROM posts p
+      JOIN users u ON u.id = p.user_id
+      LEFT JOIN (
+        SELECT post_id, COUNT(*) AS likes_count
+        FROM likes
+        GROUP BY post_id
+      ) lc ON lc.post_id = p.id
+      /* Si quieres SOLO posts con al menos 1 like, descomenta la siguiente línea */
+      -- WHERE COALESCE(likes_count, 0) > 0
+      ORDER BY COALESCE(likes_count, 0) DESC, p.created_at DESC
+      LIMIT 10
+    `);
+    res.json(result.rows);
+  } catch (err) {
+    console.error("Error al obtener destacados:", err);
+    res.status(500).json({ error: "Error al obtener posts destacados" });
+  }
+});
+
+
+// 👥 Usuarios sugeridos (excluye los que ya sigues)
+app.get("/api/users/suggestions/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await pool.query(
+      `
+      SELECT 
+        u.id,
+        u.name,
+        u.username,
+        u.avatar_url
+      FROM users u
+      WHERE u.id != $1
+      AND u.id NOT IN (
+        SELECT following_id FROM followers WHERE follower_id = $1
+      )
+      ORDER BY RANDOM()
+      LIMIT 5
+      `,
+      [id]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error("Error al obtener sugerencias:", err);
+    res.status(500).json({ error: "Error al obtener sugerencias" });
+  }
+});
+
+// 📅 EVENTOS
+// Obtener todos los eventos (públicos)
+app.get("/api/eventos", async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT 
+        e.id,
+        e.titulo,
+        e.lugar,
+        e.fecha,
+        e.created_at,
+        u.id AS creador_id,
+        u.name AS creador_nombre,
+        u.avatar_url,
+        COUNT(a.id) AS asistentes_count
+      FROM eventos e
+      JOIN users u ON u.id = e.user_id
+      LEFT JOIN asistencias a ON a.evento_id = e.id
+      GROUP BY e.id, u.id
+      ORDER BY e.fecha ASC
+    `);
+    res.json(result.rows);
+  } catch (err) {
+    console.error("Error al obtener eventos:", err);
+    res.status(500).json({ error: "Error al obtener eventos" });
+  }
+});
+
+// Crear un nuevo evento
+app.post("/api/eventos", async (req, res) => {
+  const { titulo, lugar, fecha, user_id } = req.body;
+  try {
+    const result = await pool.query(
+      `INSERT INTO eventos (titulo, lugar, fecha, user_id, created_at)
+       VALUES ($1, $2, $3, $4, NOW()) RETURNING *`,
+      [titulo, lugar, fecha, user_id]
+    );
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error("Error al crear evento:", err);
+    res.status(500).json({ error: "Error al crear evento" });
+  }
+});
+
+// Asistir / cancelar asistencia
+app.post("/api/eventos/asistir", async (req, res) => {
+  const { user_id, evento_id } = req.body;
+
+  try {
+    // Ver si ya asiste
+    const check = await pool.query(
+      `SELECT * FROM asistencias WHERE user_id = $1 AND evento_id = $2`,
+      [user_id, evento_id]
+    );
+
+    if (check.rows.length > 0) {
+      // Ya asiste → cancelar asistencia
+      await pool.query(
+        `DELETE FROM asistencias WHERE user_id = $1 AND evento_id = $2`,
+        [user_id, evento_id]
+      );
+      return res.json({ asistiendo: false });
+    } else {
+      // No asiste → agregar asistencia
+      await pool.query(
+        `INSERT INTO asistencias (user_id, evento_id, created_at)
+         VALUES ($1, $2, NOW())`,
+        [user_id, evento_id]
+      );
+      return res.json({ asistiendo: true });
+    }
+  } catch (err) {
+    console.error("Error al asistir/cancelar evento:", err);
+    res.status(500).json({ error: "Error al actualizar asistencia" });
+  }
+});
+
+// Obtener eventos del usuario (creados o a los que asiste)
+app.get("/api/eventos/usuario/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await pool.query(
+      `
+      SELECT DISTINCT e.*, u.name AS creador_nombre, u.avatar_url
+      FROM eventos e
+      JOIN users u ON u.id = e.user_id
+      LEFT JOIN asistencias a ON a.evento_id = e.id
+      WHERE e.user_id = $1 OR a.user_id = $1
+      ORDER BY e.fecha ASC
+      `,
+      [id]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error("Error al obtener eventos del usuario:", err);
+    res.status(500).json({ error: "Error al obtener tus eventos" });
+  }
+});

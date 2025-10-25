@@ -1,0 +1,72 @@
+.eventos-container {
+  max-width: 800px;
+  margin: 30px auto;
+  padding: 20px;
+  background: var(--fondo, #fff);
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.eventos-container h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.evento-card {
+  background: #f9f9f9;
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 20px;
+  transition: 0.3s;
+}
+
+.evento-card:hover {
+  background: #f0f0f0;
+}
+
+.evento-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+}
+
+.evento-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+}
+
+.evento-header h3 {
+  margin: 0;
+}
+
+.evento-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.asistir-btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.asistir-btn.cancelar {
+  background-color: #dc3545;
+}
+
+.asistir-btn:hover {
+  opacity: 0.9;
+}
+
+.loading,
+.no-events {
+  text-align: center;
+  color: #777;
+}

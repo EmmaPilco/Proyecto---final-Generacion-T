@@ -265,3 +265,137 @@ body {
   gap: 10px;
   margin-top: 5px;
 }
+
+
+
+/* --- SIDEBAR DERECHA --- */
+.right-sidebar {
+  width: 260px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  padding: 15px;
+  position: sticky;
+  top: 20px;
+  height: fit-content;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar-section {
+  margin-bottom: 20px;
+}
+
+.sidebar-section h4 {
+  font-size: 1.1rem;
+  color: #dc2626;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 5px;
+}
+
+/* 🌙 Switch modo oscuro */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 46px;
+  height: 24px;
+}
+.switch input { display: none; }
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0;
+  right: 0; bottom: 0;
+  background-color: #ccc;
+  transition: 0.4s;
+  border-radius: 34px;
+}
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px; width: 18px;
+  left: 3px; bottom: 3px;
+  background-color: white;
+  border-radius: 50%;
+  transition: 0.4s;
+}
+input:checked + .slider {
+  background-color: #dc2626;
+}
+input:checked + .slider:before {
+  transform: translateX(22px);
+}
+
+/* 💬 Chat y listas */
+.featured-post, .suggested-user, .event-item, .chat-friend {
+  background: #f9f9f9;
+  border-radius: 8px;
+  padding: 8px;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.suggested-user, .chat-friend {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chat-friend .online-dot {
+  width: 10px;
+  height: 10px;
+  background: #22c55e;
+  border-radius: 50%;
+  margin-left: auto;
+}
+
+/* 🌙 Estilo modo oscuro global */
+body.dark-mode {
+  background-color: #0f172a;
+  color: #e2e8f0;
+}
+
+body.dark-mode .feed-container,
+body.dark-mode .friends-sidebar,
+body.dark-mode .right-sidebar,
+body.dark-mode .post-card,
+body.dark-mode .create-post {
+  background: #1e293b !important;
+  color: #e2e8f0 !important;
+  box-shadow: none;
+}
+
+body.dark-mode .post-actions button {
+  background: #334155;
+}
+
+/* ==== SIDEBAR BOTONES ==== */
+.sidebar-btn {
+  display: inline-block;
+  width: 40%;
+  padding: 10px 14px;
+  margin-top: 8px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #4f46e5, #6d28d9);
+  color: white;
+  text-align: center;
+  text-decoration: none;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+}
+
+.sidebar-btn:hover {
+  background: linear-gradient(135deg, #4338ca, #5b21b6);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.25);
+}
+
+.sidebar-btn.add {
+  background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.sidebar-btn.add:hover {
+  background: linear-gradient(135deg, #059669, #047857);
+}

@@ -12,6 +12,8 @@ export default function Feed() {
   const [editingPostId, setEditingPostId] = useState(null);
   const [editContent, setEditContent] = useState("");
   const [menuOpenId, setMenuOpenId] = useState(null);
+  // 🔹 Nueva lógica para el sidebar derecho
+  const [darkMode, setDarkMode] = useState(localStorage.getItem("darkMode") === "true");
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -45,6 +47,12 @@ export default function Feed() {
 
     fetchData();
   }, [user?.id]);
+
+  // Guardar preferencia modo oscuro
+  useEffect(() => {
+    document.body.classList.toggle("dark-mode", darkMode);
+    localStorage.setItem("darkMode", darkMode);
+  }, [darkMode]);
 
   // Crear post
   const handleImageChange = (e) => {
@@ -158,6 +166,7 @@ export default function Feed() {
 
   return (
     <div className="feed-layout">
+
       <aside className="friends-sidebar">
         <h3>Amigos</h3>
         {friends.length === 0 ? (
@@ -274,6 +283,45 @@ export default function Feed() {
           </div>
         ))}
       </main>
+
+      {/* Sidebar derecha */}
+      <aside className="right-sidebar">
+        {/* 🌙 Modo oscuro */}
+        <div className="sidebar-section">
+          <h4>Modo oscuro</h4>
+          <label className="switch">
+            <input type="checkbox" checked={darkMode} onChange={() => setDarkMode(!darkMode)} />
+            <span className="slider"></span>
+          </label>
+        </div>
+
+        {/* 🔥 Posts destacados */}
+        <div className="sidebar-section">
+          <h4>Destacados</h4>
+          <p>Los posts con más me gusta.</p>
+          <Link to="/destacados" className="sidebar-btn">Ver</Link>
+        </div>
+
+        {/* 👥 Usuarios sugeridos */}
+        <div className="sidebar-section">
+          <h4>Usuarios sugeridos</h4>
+          <p>Personas que podrías seguir.</p>
+          <Link to="/usuarios-sugeridos" className="sidebar-btn">Ver</Link>
+        </div>
+
+        {/* 📅 Eventos */}
+        <div className="sidebar-section">
+          <h4>Eventos</h4>
+          <p>Tus próximos eventos.</p>
+          <Link to="/crear-evento" className="sidebar-btn add">Agregar</Link>
+          <Link to="/eventos" className="sidebar-btn">Ver</Link>
+        </div>
+
+        {/* 💬 Chat en línea */}
+        <div className="sidebar-section">
+          <h4>Chat en línea</h4>
+        </div>
+      </aside>
     </div>
   );
 }
