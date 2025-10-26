@@ -39,7 +39,7 @@ if (!connectionString) {
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: {
-    rejectUnauthorized: false, // 👈 Permite certificados autofirmados (Supabase)
+    rejectUnauthorized: false,
   },
 });
 
@@ -72,7 +72,6 @@ app.post("/api/login", async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    // Buscar usuario
     const result = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
     const user = result.rows[0];
 
@@ -80,13 +79,11 @@ app.post("/api/login", async (req, res) => {
       return res.status(401).json({ success: false, message: "Usuario no encontrado" });
     }
 
-    // Verificar contraseña
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({ success: false, message: "Contraseña incorrecta" });
     }
 
-    // Crear token
     const token = jwt.sign({ id: user.id, username: user.username }, SECRET_KEY, { expiresIn: "1h" });
 
     res.json({ success: true, token, user: { id: user.id, name: user.name, username: user.username, email: user.email } });
@@ -96,14 +93,11 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
-// ------------------------------------------
-
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
 
 
-// Obtener todos los posts con info del usuario
 app.get("/api/posts", async (req, res) => {
   try {
     const result = await pool.query(`
@@ -120,7 +114,6 @@ app.get("/api/posts", async (req, res) => {
   }
 });
 
-// Crear un nuevo post con imagen (si se envía)
 app.post("/api/posts", upload.single("image"), async (req, res) => {
   try {
     const { user_id, content } = req.body;
@@ -130,7 +123,6 @@ app.post("/api/posts", upload.single("image"), async (req, res) => {
     ? "https://proyecto-final-generacion-t.onrender.com"
     : "http://localhost:4000";
 
-    // Si el usuario sube una imagen, la guardamos en /uploads/
     if (req.file) {
       image_url = `${baseUrl}/uploads/${req.file.filename}`;
     }
@@ -149,8 +141,6 @@ app.post("/api/posts", upload.single("image"), async (req, res) => {
   }
 });
 
-
-// 🔥 Posts destacados (ordenados por cantidad de likes)
 app.get("/api/posts/trending", async (req, res) => {
   try {
     const result = await pool.query(`
@@ -183,27 +173,23 @@ app.get("/api/posts/trending", async (req, res) => {
 });
 
 
-// Dar like o quitar like (toggle)
 app.post("/api/posts/:id/like", async (req, res) => {
-  const { user_id } = req.body; // id del usuario logueado
+  const { user_id } = req.body;
   const post_id = req.params.id;
 
   try {
-    // Verificamos si ya existe un like de este usuario en este post
     const existing = await pool.query(
       "SELECT * FROM likes WHERE post_id = $1 AND user_id = $2",
       [post_id, user_id]
     );
 
     if (existing.rows.length > 0) {
-      // Si ya existe → quitar like
       await pool.query(
         "DELETE FROM likes WHERE post_id = $1 AND user_id = $2",
         [post_id, user_id]
       );
       return res.json({ success: true, liked: false });
     } else {
-      // Si no existe → dar like
       await pool.query(
         "INSERT INTO likes (post_id, user_id) VALUES ($1, $2)",
         [post_id, user_id]
@@ -216,7 +202,6 @@ app.post("/api/posts/:id/like", async (req, res) => {
   }
 });
 
-// Obtener posts con likes + si el usuario actual ya dio like
 app.get("/api/posts/:userId", async (req, res) => {
   const userId = req.params.userId;
 
@@ -240,8 +225,6 @@ app.get("/api/posts/:userId", async (req, res) => {
     res.status(500).json({ message: "Error al obtener los posts" });
   }
 });
-
-
 
 // Obtener comentarios de un post
 app.get("/api/posts/:postId/comments", async (req, res) => {
@@ -282,12 +265,12 @@ app.post("/api/posts/:postId/comments", async (req, res) => {
   }
 });
 
+
 // Obtener perfil de un usuario por su id
 app.get("/api/profile/:id", async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Datos del usuario
     const userQuery = await pool.query(
       "SELECT id, name, username, email, avatar_url, cover_url, bio FROM users WHERE id = $1",
       [id]
@@ -297,19 +280,16 @@ app.get("/api/profile/:id", async (req, res) => {
     }
     const user = userQuery.rows[0];
 
-    // Seguidores (followers) -> cuántos lo siguen
     const followersQuery = await pool.query(
       "SELECT COUNT(*) FROM followers WHERE following_id = $1",
       [id]
     );
 
-    // Seguidos (following) -> a cuántos sigue
     const followingQuery = await pool.query(
       "SELECT COUNT(*) FROM followers WHERE follower_id = $1",
       [id]
     );
 
-    // Publicaciones del usuario
     const postsQuery = await pool.query(
       "SELECT id, content, image_url, created_at, updated_at FROM posts WHERE user_id = $1 ORDER BY created_at DESC",
       [id]
@@ -318,8 +298,8 @@ app.get("/api/profile/:id", async (req, res) => {
     res.json({
       user: {
         ...user,
-        followers: parseInt(followersQuery.rows[0].count, 10), // lo siguen
-        following: parseInt(followingQuery.rows[0].count, 10), // sigue a otros
+        followers: parseInt(followersQuery.rows[0].count, 10),
+        following: parseInt(followingQuery.rows[0].count, 10),
       },
       posts: postsQuery.rows,
     });
@@ -330,8 +310,6 @@ app.get("/api/profile/:id", async (req, res) => {
 });
 
 
-
-// Actualizar perfil
 app.put("/api/profile/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -352,9 +330,8 @@ app.put("/api/profile/:id", async (req, res) => {
 });
 
 
-
 app.post("/api/follow/:id", async (req, res) => {
-  const { follower_id } = req.body; // ID del usuario logueado
+  const { follower_id } = req.body;
   const following_id = parseInt(req.params.id);
 
   if (follower_id === following_id) {
@@ -393,7 +370,6 @@ app.delete("/api/follow/:id", async (req, res) => {
 });
 
 
-// Comprobar si follower_id sigue a following_id
 app.get("/api/follow/check/:followerId/:followingId", async (req, res) => {
   try {
     const followerId = parseInt(req.params.followerId, 10);
@@ -410,7 +386,6 @@ app.get("/api/follow/check/:followerId/:followingId", async (req, res) => {
     res.status(500).json({ error: "Error al comprobar follow" });
   }
 });
-
 
 
 app.get("/api/followers/:id", async (req, res) => {
@@ -431,6 +406,7 @@ app.get("/api/followers/:id", async (req, res) => {
   }
 });
 
+
 app.get("/api/following/:id", async (req, res) => {
   const userId = parseInt(req.params.id, 10);
 
@@ -450,9 +426,6 @@ app.get("/api/following/:id", async (req, res) => {
 });
 
 
-
-
-// Obtener amigos (seguimiento mutuo)
 app.get("/api/friends/:userId", async (req, res) => {
   try {
     const { userId } = req.params;
@@ -475,7 +448,7 @@ app.get("/api/friends/:userId", async (req, res) => {
 
 
 
-// 🔎 Buscar usuarios
+// Buscar usuarios
 app.get("/api/users/search", async (req, res) => {
   const { q } = req.query;
   try {
@@ -506,10 +479,7 @@ app.get("/api/users", async (req, res) => {
 });
 
 
-
-
-
-// 📝 Editar una publicación
+// Editar una publicación
 app.put("/api/posts/:id", async (req, res) => {
   try {
     const postId = req.params.id;
@@ -542,7 +512,7 @@ app.put("/api/posts/:id", async (req, res) => {
   }
 });
 
-// 🗑️ Eliminar una publicación
+//Eliminar una publicación
 app.delete("/api/posts/:id", async (req, res) => {
   try {
     const postId = req.params.id;
@@ -576,31 +546,8 @@ app.delete("/api/posts/:id", async (req, res) => {
   }
 });
 
-// Usuarios sugeridos
-app.get("/api/users/suggestions", async (req, res) => {
-  try {
-    const result = await pool.query(
-      `
-      SELECT 
-        id,
-        name,
-        username,
-        avatar_url
-      FROM users
-      ORDER BY RANDOM()
-      LIMIT 5
-      `
-    );
-    res.json(result.rows);
-  } catch (err) {
-    console.error("Error al obtener sugerencias:", err);
-    res.status(500).json({ error: "Error al obtener sugerencias" });
-  }
-});
-
-
 // EVENTOS
-// Obtener todos los eventos (públicos)
+// Obtener todos los eventos
 app.get("/api/eventos", async (req, res) => {
   try {
     const result = await pool.query(`
@@ -655,14 +602,12 @@ app.post("/api/eventos/asistir", async (req, res) => {
     );
 
     if (check.rows.length > 0) {
-      // Ya asiste → cancelar asistencia
       await pool.query(
         `DELETE FROM asistencias WHERE user_id = $1 AND evento_id = $2`,
         [user_id, evento_id]
       );
       return res.json({ asistiendo: false });
     } else {
-      // No asiste → agregar asistencia
       await pool.query(
         `INSERT INTO asistencias (user_id, evento_id, created_at)
          VALUES ($1, $2, NOW())`,

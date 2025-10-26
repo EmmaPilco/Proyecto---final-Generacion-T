@@ -10,7 +10,6 @@ import Usuarios from "./paginas/usuarios";
 import PrivateRoute from "./rutaprivada";
 
 import Destacados from "./paginas/destacados";
-import UsuariosSugeridos from "./paginas/usuarios-sugeridos";
 import Eventos from "./paginas/eventos";
 import CrearEvento from "./paginas/crear-evento";
 
@@ -25,9 +24,8 @@ function App() {
           <Route path="/feed" element={<PrivateRoute><Navbar /><Feed /></PrivateRoute>} />
           <Route path="/profile/:id" element={<PrivateRoute><Navbar /><Profile /></PrivateRoute>} />
           <Route path="/usuarios" element={<PrivateRoute><Navbar /><Usuarios /></PrivateRoute>} />
-          {/* 🔹 NUEVAS RUTAS */}
+
           <Route path="/destacados" element={<PrivateRoute><Navbar /><Destacados /></PrivateRoute>}/>
-          <Route path="/usuarios-sugeridos" element={<PrivateRoute><Navbar /><UsuariosSugeridos /></PrivateRoute>}/>
           <Route path="/eventos" element={<PrivateRoute><Navbar /><Eventos /></PrivateRoute>} />
           <Route path="/crear-evento" element={<PrivateRoute><Navbar /><CrearEvento /></PrivateRoute>} />
         </Routes>

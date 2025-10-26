@@ -1,14 +1,12 @@
-/* Fondo general */
 .container {
   display: flex;
-  justify-content: center; /* Centrar horizontalmente */
-  align-items: center;     /* Centrar verticalmente */
-  min-height: 100vh;       /* Ocupa toda la pantalla */
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
   background: linear-gradient(135deg, #dc2626, #991b1b);
   padding: 20px;
 }
 
-/* Caja del formulario */
 .form-container {
   width: 100%;
   max-width: 400px;
@@ -20,21 +18,18 @@
   animation: fadeIn 0.8s ease-in-out;
 }
 
-/* Título */
 .form-container h2 {
   margin-bottom: 20px;
   font-size: 1.8rem;
   color: #333;
 }
 
-/* Formulario */
 .form-container form {
   display: flex;
   flex-direction: column;
   gap: 15px;
 }
 
-/* Inputs */
 .form-container input {
   padding: 12px;
   border: 1px solid #ccc;
@@ -49,7 +44,6 @@
   box-shadow: 0 0 5px rgba(220, 38, 38, 0.4);
 }
 
-/* Botón */
 .form-container button {
   padding: 12px;
   background: #dc2626;
@@ -65,7 +59,6 @@
   background: #991b1b;
 }
 
-/* Texto  */
 .register-text {
   margin-top: 15px;
   font-size: 0.95rem;
@@ -82,7 +75,6 @@
   text-decoration: underline;
 }
 
-/* Animación suave */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(-20px); }
   to { opacity: 1; transform: translateY(0); }

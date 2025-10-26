@@ -12,7 +12,7 @@ export default function Feed() {
   const [editingPostId, setEditingPostId] = useState(null);
   const [editContent, setEditContent] = useState("");
   const [menuOpenId, setMenuOpenId] = useState(null);
-  // 🔹 Nueva lógica para el sidebar derecho
+
   const [darkMode, setDarkMode] = useState(localStorage.getItem("darkMode") === "true");
 
   useEffect(() => {
@@ -188,7 +188,6 @@ export default function Feed() {
       <main className="feed-container">
         <h2 className="feed-title">Últimas publicaciones</h2>
 
-        {/* Crear publicación */}
         <div className="create-post">
           <form onSubmit={handleSubmit}>
             <textarea
@@ -210,7 +209,6 @@ export default function Feed() {
           </form>
         </div>
 
-        {/* Publicaciones */}
         {posts.map((post) => (
           <div key={post.id} className="post-card">
             <div className="post-header">
@@ -300,13 +298,6 @@ export default function Feed() {
           <h4>Destacados</h4>
           <p>Los posts con más me gusta.</p>
           <Link to="/destacados" className="sidebar-btn">Ver</Link>
-        </div>
-
-        {/* 👥 Usuarios sugeridos */}
-        <div className="sidebar-section">
-          <h4>Usuarios sugeridos</h4>
-          <p>Personas que podrías seguir.</p>
-          <Link to="/usuarios-sugeridos" className="sidebar-btn">Ver</Link>
         </div>
 
         {/* 📅 Eventos */}

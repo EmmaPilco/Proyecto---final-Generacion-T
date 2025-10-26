@@ -11,7 +11,6 @@ body {
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Oscurecer un poco el fondo para que se lean mejor los posts */
 .feed-container::before {
   content: "";
   position: fixed;
@@ -31,7 +30,6 @@ body {
   padding-bottom: 5px;
 }
 
-/* Crear Post */
 .create-post {
   background: #fff;
   padding: 16px;
@@ -152,7 +150,6 @@ body {
   color: #dc2626;
 }
 
-/* Layout general con sidebar de amigos */
 .feed-layout {
   display: flex;
   justify-content: center;
@@ -205,7 +202,6 @@ body {
   border: 2px solid #ddd;
 }
 
-/* El feed ocupa lo demás */
 .feed-container {
   flex: 1;
   max-width: 600px;
@@ -268,7 +264,7 @@ body {
 
 
 
-/* --- SIDEBAR DERECHA --- */
+/*SIDEBAR DERECHA*/
 .right-sidebar {
   width: 260px;
   background: rgba(255, 255, 255, 0.95);
@@ -292,7 +288,7 @@ body {
   padding-bottom: 5px;
 }
 
-/* 🌙 Switch modo oscuro */
+/* Switch modo oscuro */
 .switch {
   position: relative;
   display: inline-block;
@@ -325,7 +321,7 @@ input:checked + .slider:before {
   transform: translateX(22px);
 }
 
-/* 💬 Chat y listas */
+/* Chat y listas */
 .featured-post, .suggested-user, .event-item, .chat-friend {
   background: #f9f9f9;
   border-radius: 8px;
@@ -348,7 +344,7 @@ input:checked + .slider:before {
   margin-left: auto;
 }
 
-/* 🌙 Estilo modo oscuro global */
+/* Estilo modo oscuro global */
 body.dark-mode {
   background-color: #0f172a;
   color: #e2e8f0;
@@ -368,7 +364,7 @@ body.dark-mode .post-actions button {
   background: #334155;
 }
 
-/* ==== SIDEBAR BOTONES ==== */
+/* SIDEBAR BOTONES */
 .sidebar-btn {
   display: inline-block;
   width: 40%;

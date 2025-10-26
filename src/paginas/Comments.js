@@ -5,7 +5,6 @@ export default function Comments({ postId, setPosts, posts }) {
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
 
-  // Cargar comentarios al iniciar
   useEffect(() => {
     const fetchComments = async () => {
       try {
@@ -36,7 +35,6 @@ export default function Comments({ postId, setPosts, posts }) {
         setComments([...comments, { ...data.comment, user_name: user.name, avatar_url: user.avatar_url }]);
         setNewComment("");
 
-        // Actualizar el feed si quieres
         setPosts(posts.map(p => 
           p.id === postId ? { ...p, comments_list: [...(p.comments_list || []), data.comment] } : p
         ));

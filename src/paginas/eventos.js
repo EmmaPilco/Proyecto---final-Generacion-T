@@ -6,7 +6,6 @@ export default function Eventos() {
   const [eventos, setEventos] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // 🔹 Cargar eventos
   useEffect(() => {
     const fetchEventos = async () => {
       try {
@@ -22,7 +21,6 @@ export default function Eventos() {
     fetchEventos();
   }, []);
 
-  // 🔹 Asistir / cancelar asistencia
   const handleAsistencia = async (eventoId) => {
     try {
       const res = await fetch(`${process.env.REACT_APP_API_URL}/api/eventos/asistir`, {
