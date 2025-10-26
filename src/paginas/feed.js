@@ -9,9 +9,6 @@ export default function Feed() {
   const [friends, setFriends] = useState([]);
   const [newPost, setNewPost] = useState({ content: "", image: null });
   const [preview, setPreview] = useState(null);
-  const [editingPostId, setEditingPostId] = useState(null);
-  const [editContent, setEditContent] = useState("");
-  const [menuOpenId, setMenuOpenId] = useState(null);
 
   const [darkMode, setDarkMode] = useState(localStorage.getItem("darkMode") === "true");
 
@@ -126,44 +123,6 @@ export default function Feed() {
     }
   };
 
-  // Editar post
-  const handleEditPost = async (postId) => {
-    try {
-      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/posts/${postId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_id: user.id, content: editContent }),
-      });
-      const data = await res.json();
-
-      if (data.success) {
-        setPosts((prev) =>
-          prev.map((p) => (p.id === postId ? { ...p, content: data.post.content } : p))
-        );
-        setEditingPostId(null);
-        setMenuOpenId(null);
-      }
-    } catch (err) {
-      console.error("Error al editar post:", err);
-    }
-  };
-
-  // Eliminar post
-  const handleDeletePost = async (postId) => {
-    if (!window.confirm("¿Seguro que deseas eliminar esta publicación?")) return;
-    try {
-      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/posts/${postId}`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_id: user.id }),
-      });
-      const data = await res.json();
-      if (data.success) setPosts(posts.filter((p) => p.id !== postId));
-    } catch (err) {
-      console.error("Error al eliminar post:", err);
-    }
-  };
-
   return (
     <div className="feed-layout">
 
@@ -218,54 +177,11 @@ export default function Feed() {
                   <span className="user-name">{post.user_name}</span>
                   <span className="post-date">{new Date(post.created_at).toLocaleString()}</span>
                 </div>
-              </div>
-
-              {/* Menú tres puntos en la esquina */}
-              {user && user.id === post.user_id && (
-                <div className="menu-container">
-                  <button
-                    className="menu-btn"
-                    onClick={() => setMenuOpenId(menuOpenId === post.id ? null : post.id)}
-                  >
-                    ⋮
-                  </button>
-                  {menuOpenId === post.id && (
-                    <div className="menu-options">
-                      <button
-                        onClick={() => {
-                          setEditingPostId(post.id);
-                          setEditContent(post.content);
-                          setMenuOpenId(null);
-                        }}
-                      >
-                        Editar
-                      </button>
-                      <button className="danger" onClick={() => handleDeletePost(post.id)}>
-                        Eliminar
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
+              </div>          
             </div>
 
-            {editingPostId === post.id ? (
-              <div className="edit-section">
-                <textarea
-                  value={editContent}
-                  onChange={(e) => setEditContent(e.target.value)}
-                />
-                <div className="edit-buttons">
-                  <button onClick={() => handleEditPost(post.id)}>Guardar</button>
-                  <button onClick={() => setEditingPostId(null)}>Cancelar</button>
-                </div>
-              </div>
-            ) : (
-              <>
-                <p className="post-content">{post.content}</p>
-                {post.image_url && <img src={post.image_url} alt="post" className="post-image" />}
-              </>
-            )}
+            <p className="post-content">{post.content}</p>
+            {post.image_url && <img src={post.image_url} alt="post" className="post-image" />}
 
             <div className="post-footer">
               <button
