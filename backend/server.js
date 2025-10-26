@@ -576,29 +576,20 @@ app.delete("/api/posts/:id", async (req, res) => {
   }
 });
 
-
-
-
-// 👥 Usuarios sugeridos (excluye los que ya sigues)
-app.get("/api/users/suggestions/:id", async (req, res) => {
-  const { id } = req.params;
+// Usuarios sugeridos
+app.get("/api/users/suggestions", async (req, res) => {
   try {
     const result = await pool.query(
       `
       SELECT 
-        u.id,
-        u.name,
-        u.username,
-        u.avatar_url
-      FROM users u
-      WHERE u.id != $1
-      AND u.id NOT IN (
-        SELECT following_id FROM followers WHERE follower_id = $1
-      )
+        id,
+        name,
+        username,
+        avatar_url
+      FROM users
       ORDER BY RANDOM()
       LIMIT 5
-      `,
-      [id]
+      `
     );
     res.json(result.rows);
   } catch (err) {
@@ -607,7 +598,8 @@ app.get("/api/users/suggestions/:id", async (req, res) => {
   }
 });
 
-// 📅 EVENTOS
+
+// EVENTOS
 // Obtener todos los eventos (públicos)
 app.get("/api/eventos", async (req, res) => {
   try {

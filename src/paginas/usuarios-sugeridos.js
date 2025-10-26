@@ -1,19 +1,14 @@
 import React, { useEffect, useState } from "react";
 import "./styles/usuarios-sugeridos.css";
 
-const UsuariosSugeridos = ({ userId }) => {
+const UsuariosSugeridos = () => {
   const [sugeridos, setSugeridos] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Obtener usuarios sugeridos
   useEffect(() => {
-    if (!userId) return;
-
     const fetchSugeridos = async () => {
       try {
-        const res = await fetch(
-          `${process.env.REACT_APP_API_URL}/api/users/suggestions/${userId}`
-        );
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/users/suggestions`);
         const data = await res.json();
         setSugeridos(data);
       } catch (err) {
@@ -24,27 +19,7 @@ const UsuariosSugeridos = ({ userId }) => {
     };
 
     fetchSugeridos();
-  }, [userId]);
-
-  // Acción de seguir
-  const handleFollow = async (followingId) => {
-    try {
-      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/follow`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ follower_id: userId, following_id: followingId }),
-      });
-
-      if (res.ok) {
-        // Eliminamos de la lista local el usuario seguido
-        setSugeridos((prev) => prev.filter((u) => u.id !== followingId));
-      } else {
-        console.error("Error al seguir usuario");
-      }
-    } catch (err) {
-      console.error("Error al seguir:", err);
-    }
-  };
+  }, []);
 
   return (
     <div className="sugeridos-card">
@@ -53,7 +28,7 @@ const UsuariosSugeridos = ({ userId }) => {
       {loading ? (
         <p className="sugeridos-loading">Cargando...</p>
       ) : sugeridos.length === 0 ? (
-        <p className="sugeridos-vacio">No hay sugerencias por ahora 😄</p>
+        <p className="sugeridos-vacio">No hay usuarios por ahora 😄</p>
       ) : (
         <ul className="sugeridos-lista">
           {sugeridos.map((user) => (
@@ -71,12 +46,6 @@ const UsuariosSugeridos = ({ userId }) => {
                 <p className="sugerido-nombre">{user.name}</p>
                 <span className="sugerido-username">@{user.username}</span>
               </div>
-              <button
-                className="btn-seguir"
-                onClick={() => handleFollow(user.id)}
-              >
-                Seguir
-              </button>
             </li>
           ))}
         </ul>
@@ -86,3 +55,4 @@ const UsuariosSugeridos = ({ userId }) => {
 };
 
 export default UsuariosSugeridos;
+
