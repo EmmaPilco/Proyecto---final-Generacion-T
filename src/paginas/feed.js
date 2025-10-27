@@ -227,6 +227,8 @@ export default function Feed() {
         {/* 💬 Chat en línea */}
         <div className="sidebar-section">
           <h4>Chat en línea</h4>
+          <p>Chatea con tus amigos.</p>
+          <Link to="/chat" className="sidebar-btn">Abrir chat</Link>
         </div>
       </aside>
     </div>

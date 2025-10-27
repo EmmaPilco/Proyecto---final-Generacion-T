@@ -575,3 +575,123 @@ app.get("/api/eventos/usuario/:id", async (req, res) => {
     res.status(500).json({ error: "Error al obtener tus eventos" });
   }
 });
+
+
+//CHAT - Conversaciones y mensajes
+app.get("/api/friends/mutual/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await pool.query(
+      `
+      SELECT u.id, u.name, u.username, u.avatar_url
+      FROM users u
+      WHERE u.id IN (
+        SELECT f1.following_id
+        FROM followers f1
+        INNER JOIN followers f2
+        ON f1.following_id = f2.follower_id
+        WHERE f1.follower_id = $1 AND f2.following_id = $1
+      )
+      ORDER BY u.name ASC
+      `,
+      [id]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error("❌ Error al obtener amigos mutuos:", err);
+    res.status(500).json({ error: "Error al obtener amigos" });
+  }
+});
+
+// Obtener mensajes de una conversación
+app.get("/api/chat/:conversationId", async (req, res) => {
+  const { conversationId } = req.params;
+  try {
+    const result = await pool.query(
+      `
+      SELECT m.*, u.username, u.avatar_url
+      FROM messages m
+      JOIN users u ON m.sender_id = u.id
+      WHERE m.conversation_id = $1
+      ORDER BY m.created_at ASC
+      `,
+      [conversationId]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error("❌ Error al obtener mensajes:", err);
+    res.status(500).json({ error: "Error al obtener mensajes" });
+  }
+});
+
+// Enviar mensaje
+app.post("/api/chat/send", async (req, res) => {
+  const { sender_id, receiver_id, content } = req.body;
+
+  if (!sender_id || !receiver_id || !content) {
+    return res.status(400).json({ error: "Faltan datos obligatorios" });
+  }
+
+  try {
+    let convo = await pool.query(
+      `
+      SELECT id FROM conversations
+      WHERE (user1_id = $1 AND user2_id = $2)
+      OR (user1_id = $2 AND user2_id = $1)
+      `,
+      [sender_id, receiver_id]
+    );
+
+    let conversationId;
+    if (convo.rows.length > 0) {
+      conversationId = convo.rows[0].id;
+    } else {
+      const newConvo = await pool.query(
+        `
+        INSERT INTO conversations (user1_id, user2_id)
+        VALUES ($1, $2)
+        RETURNING id
+        `,
+        [sender_id, receiver_id]
+      );
+      conversationId = newConvo.rows[0].id;
+    }
+
+    const newMsg = await pool.query(
+      `
+      INSERT INTO messages (conversation_id, sender_id, content)
+      VALUES ($1, $2, $3)
+      RETURNING *
+      `,
+      [conversationId, sender_id, content]
+    );
+
+    res.json({ success: true, message: newMsg.rows[0], conversation_id: conversationId });
+  } catch (err) {
+    console.error("❌ Error al enviar mensaje:", err);
+    res.status(500).json({ error: "Error al enviar mensaje" });
+  }
+});
+
+
+// Obtener mensajes entre dos usuarios
+app.get("/api/chat/history/:user1/:user2", async (req, res) => {
+  const { user1, user2 } = req.params;
+  try {
+    const result = await pool.query(
+      `
+      SELECT m.*, u.username, u.avatar_url
+      FROM messages m
+      JOIN users u ON m.sender_id = u.id
+      WHERE (m.sender_id = $1 AND m.receiver_id = $2)
+      OR (m.sender_id = $2 AND m.receiver_id = $1)
+      ORDER BY m.created_at ASC
+      `,
+      [user1, user2]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error("❌ Error al obtener historial:", err);
+    res.status(500).json({ error: "Error al obtener historial" });
+  }
+});

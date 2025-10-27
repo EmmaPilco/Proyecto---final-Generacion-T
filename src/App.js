@@ -12,6 +12,7 @@ import PrivateRoute from "./rutaprivada";
 import Destacados from "./paginas/destacados";
 import Eventos from "./paginas/eventos";
 import CrearEvento from "./paginas/crear-evento";
+import ChatPage from "./paginas/chat/chatpage";
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
           <Route path="/destacados" element={<PrivateRoute><Navbar /><Destacados /></PrivateRoute>}/>
           <Route path="/eventos" element={<PrivateRoute><Navbar /><Eventos /></PrivateRoute>} />
           <Route path="/crear-evento" element={<PrivateRoute><Navbar /><CrearEvento /></PrivateRoute>} />
+          <Route path="/chat" element={<PrivateRoute><Navbar /><ChatPage /></PrivateRoute>} />
         </Routes>
       </div>
     </Router>
