@@ -14,11 +14,13 @@ function ChatPage() {
     if (user) setCurrentUser(user);
   }, []);
 
+  // 🔹 Cargar conversación y mensajes
   useEffect(() => {
     const iniciarConversacion = async () => {
       if (!selectedFriend || !currentUser) return;
 
       try {
+        // Buscar o crear conversación
         const res = await fetch(`${process.env.REACT_APP_API_URL}/api/conversations`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -31,11 +33,19 @@ function ChatPage() {
         const convo = await res.json();
         setConversationId(convo.id);
 
+        // Cargar mensajes de esa conversación
         const mensajesRes = await fetch(
           `${process.env.REACT_APP_API_URL}/api/messages/${convo.id}`
         );
         const mensajes = await mensajesRes.json();
-        setMessages(mensajes);
+
+        // Determinar si los mensajes son propios o del otro
+        const mensajesMarcados = mensajes.map((msg) => ({
+          ...msg,
+          isOwn: msg.sender_id === currentUser.id,
+        }));
+
+        setMessages(mensajesMarcados);
       } catch (err) {
         console.error("❌ Error al iniciar conversación:", err);
       }
@@ -44,6 +54,7 @@ function ChatPage() {
     iniciarConversacion();
   }, [selectedFriend, currentUser]);
 
+  // 🔹 Enviar mensaje
   const handleSendMessage = async (text) => {
     if (!text.trim() || !selectedFriend || !currentUser || !conversationId) return;
 
@@ -58,7 +69,7 @@ function ChatPage() {
     setMessages((prev) => [...prev, newMessage]);
 
     try {
-      await fetch(`${process.env.REACT_APP_API_URL}/api/messages`, {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/messages`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -68,6 +79,19 @@ function ChatPage() {
           content: text,
         }),
       });
+
+      // 🔄 Recargar mensajes después de guardar en BD
+      if (res.ok) {
+        const mensajesRes = await fetch(
+          `${process.env.REACT_APP_API_URL}/api/messages/${conversationId}`
+        );
+        const mensajes = await mensajesRes.json();
+        const mensajesMarcados = mensajes.map((msg) => ({
+          ...msg,
+          isOwn: msg.sender_id === currentUser.id,
+        }));
+        setMessages(mensajesMarcados);
+      }
     } catch (err) {
       console.error("❌ Error al enviar mensaje:", err);
     }
@@ -75,18 +99,11 @@ function ChatPage() {
 
   return (
     <div className="chat-page">
-      <ChatSidebar
-        onSelectChat={setSelectedFriend}
-        currentUser={currentUser}
-      />
-
-      <ChatWindow
-        friend={selectedFriend}
-        messages={messages}
-        onSendMessage={handleSendMessage}
-      />
+      <ChatSidebar onSelectChat={setSelectedFriend} currentUser={currentUser} />
+      <ChatWindow friend={selectedFriend} messages={messages} onSendMessage={handleSendMessage} />
     </div>
   );
 }
 
 export default ChatPage;
+
