@@ -579,6 +579,33 @@ app.get("/api/eventos/usuario/:id", async (req, res) => {
 
 // CHAT conversaciones y mensajes
 
+// Obtener amigos mutuos
+app.get("/api/friends/mutual/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await pool.query(
+      `
+      SELECT u.id, u.name, u.username, u.avatar_url
+      FROM users u
+      WHERE u.id IN (
+        SELECT f1.following_id
+        FROM followers f1
+        INNER JOIN followers f2
+        ON f1.following_id = f2.follower_id
+        WHERE f1.follower_id = $1 AND f2.following_id = $1
+      )
+      ORDER BY u.name ASC
+      `,
+      [id]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error("❌ Error al obtener amigos mutuos:", err);
+    res.status(500).json({ error: "Error al obtener amigos" });
+  }
+});
+
+
 // Obtener mensajes de una conversación
 app.post('/api/conversations', async (req, res) => {
   const { user1_id, user2_id } = req.body;
