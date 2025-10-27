@@ -577,7 +577,9 @@ app.get("/api/eventos/usuario/:id", async (req, res) => {
 });
 
 
-//CHAT - Conversaciones y mensajes
+// CHAT conversaciones y mensajes
+
+// Obtener amigos mutuos
 app.get("/api/friends/mutual/:id", async (req, res) => {
   const { id } = req.params;
   try {
@@ -603,6 +605,7 @@ app.get("/api/friends/mutual/:id", async (req, res) => {
   }
 });
 
+
 // Obtener mensajes de una conversación
 app.get("/api/chat/:conversationId", async (req, res) => {
   const { conversationId } = req.params;
@@ -624,11 +627,12 @@ app.get("/api/chat/:conversationId", async (req, res) => {
   }
 });
 
+
 // Enviar mensaje
 app.post("/api/chat/send", async (req, res) => {
   const { sender_id, receiver_id, content } = req.body;
 
-  if (!sender_id || !receiver_id || !content) {
+  if (!sender_id || !receiver_id || !content.trim()) {
     return res.status(400).json({ error: "Faltan datos obligatorios" });
   }
 
@@ -659,11 +663,11 @@ app.post("/api/chat/send", async (req, res) => {
 
     const newMsg = await pool.query(
       `
-      INSERT INTO messages (conversation_id, sender_id, content)
-      VALUES ($1, $2, $3)
+      INSERT INTO messages (conversation_id, sender_id, receiver_id, content)
+      VALUES ($1, $2, $3, $4)
       RETURNING *
       `,
-      [conversationId, sender_id, content]
+      [conversationId, sender_id, receiver_id, content]
     );
 
     res.json({ success: true, message: newMsg.rows[0], conversation_id: conversationId });
@@ -674,21 +678,37 @@ app.post("/api/chat/send", async (req, res) => {
 });
 
 
-// Obtener mensajes entre dos usuarios
+// Obtener historial entre dos usuarios
 app.get("/api/chat/history/:user1/:user2", async (req, res) => {
   const { user1, user2 } = req.params;
+
   try {
+    const convo = await pool.query(
+      `
+      SELECT id FROM conversations
+      WHERE (user1_id = $1 AND user2_id = $2)
+      OR (user1_id = $2 AND user2_id = $1)
+      `,
+      [user1, user2]
+    );
+
+    if (convo.rows.length === 0) {
+      return res.json([]);
+    }
+
+    const conversationId = convo.rows[0].id;
+
     const result = await pool.query(
       `
       SELECT m.*, u.username, u.avatar_url
       FROM messages m
       JOIN users u ON m.sender_id = u.id
-      WHERE (m.sender_id = $1 AND m.receiver_id = $2)
-      OR (m.sender_id = $2 AND m.receiver_id = $1)
+      WHERE m.conversation_id = $1
       ORDER BY m.created_at ASC
       `,
-      [user1, user2]
+      [conversationId]
     );
+
     res.json(result.rows);
   } catch (err) {
     console.error("❌ Error al obtener historial:", err);
