@@ -29,7 +29,7 @@ export default function Register() {
 
       const data = await res.json();
       if (data.success) {
-        // ✅ Guardamos el usuario real que viene del backend
+        
         localStorage.setItem("user", JSON.stringify(data.user));
 
         setMessage("Registro exitoso, ahora puedes iniciar sesión.");

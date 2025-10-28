@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom"; // 👈 para leer el :id de la URL
+import { useParams } from "react-router-dom";
 import "./styles/profile.css";
 
 export default function Profile() {
-  const { id } = useParams(); // 👈 ID del perfil visitado
+  const { id } = useParams(); 
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
-  const [isFollowing, setIsFollowing] = useState(false); // 👈 nuevo estado
+  const [isFollowing, setIsFollowing] = useState(false);
   const [formData, setFormData] = useState({ avatar_url: "", cover_url: "", bio: "" });
 
   const storedUser = JSON.parse(localStorage.getItem("user"));
@@ -75,7 +75,7 @@ export default function Profile() {
   const handleFollowToggle = async () => {
     try {
       if (isFollowing) {
-        // 👉 Dejar de seguir
+        //Dejar de seguir
         const res = await fetch(`${process.env.REACT_APP_API_URL}/api/follow/${user.id}`, {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
@@ -93,7 +93,7 @@ export default function Profile() {
           }));
         }
       } else {
-        // 👉 Seguir
+        //Seguir
         const res = await fetch(`${process.env.REACT_APP_API_URL}/api/follow/${user.id}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },

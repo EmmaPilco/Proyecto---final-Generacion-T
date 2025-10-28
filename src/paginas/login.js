@@ -27,7 +27,7 @@ export default function Login() {
 
       const data = await res.json();
       if (data.success) {
-        // Guardamos el token en localStorage
+        
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
         setMessage("Bienvenido " + data.user.name);

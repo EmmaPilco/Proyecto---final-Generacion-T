@@ -19,7 +19,7 @@ export default function Usuarios() {
     fetchUsers();
   }, []);
 
-  // Filtrado en frontend
+  
   const filtered = users.filter(
     (u) =>
       u.name.toLowerCase().includes(search.toLowerCase()) ||

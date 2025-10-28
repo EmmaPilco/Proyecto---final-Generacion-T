@@ -46,7 +46,7 @@ const pool = new Pool({
 
 const SECRET_KEY = process.env.SECRET_KEY || "conectiu_secret";
 
-// ----------------- RUTAS -----------------
+// RUTAS
 
 // Registro de usuario
 app.post("/api/register", async (req, res) => {
@@ -266,7 +266,7 @@ app.post("/api/posts/:postId/comments", async (req, res) => {
 });
 
 
-// Obtener perfil de un usuario por su id
+// Obtener perfil de un usuario
 app.get("/api/profile/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -523,12 +523,12 @@ app.post("/api/eventos", async (req, res) => {
   }
 });
 
-// Asistir / cancelar asistencia
+// Asistir o cancelar asistencia
 app.post("/api/eventos/asistir", async (req, res) => {
   const { user_id, evento_id } = req.body;
 
   try {
-    // Ver si ya asiste
+    // Verificar si ya asiste
     const check = await pool.query(
       `SELECT * FROM asistencias WHERE user_id = $1 AND evento_id = $2`,
       [user_id, evento_id]
@@ -554,7 +554,7 @@ app.post("/api/eventos/asistir", async (req, res) => {
   }
 });
 
-// Obtener eventos del usuario (creados o a los que asiste)
+// Obtener eventos del usuario
 app.get("/api/eventos/usuario/:id", async (req, res) => {
   const { id } = req.params;
   try {
@@ -611,7 +611,7 @@ app.post('/api/conversations', async (req, res) => {
   const { user1_id, user2_id } = req.body;
 
   try {
-    // Normalizar el orden para evitar duplicados (1-2 y 2-1)
+    
     const [a, b] = user1_id < user2_id ? [user1_id, user2_id] : [user2_id, user1_id];
 
     let result = await pool.query(

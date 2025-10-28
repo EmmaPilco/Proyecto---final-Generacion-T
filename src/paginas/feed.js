@@ -200,7 +200,7 @@ export default function Feed() {
 
       {/* Sidebar derecha */}
       <aside className="right-sidebar">
-        {/* 🌙 Modo oscuro */}
+        {/* Modo oscuro */}
         <div className="sidebar-section">
           <h4>Modo oscuro</h4>
           <label className="switch">
@@ -209,14 +209,14 @@ export default function Feed() {
           </label>
         </div>
 
-        {/* 🔥 Posts destacados */}
+        {/* Posts destacados */}
         <div className="sidebar-section">
           <h4>Destacados</h4>
           <p>Los posts con más me gusta.</p>
           <Link to="/destacados" className="sidebar-btn">Ver</Link>
         </div>
 
-        {/* 📅 Eventos */}
+        {/* Eventos */}
         <div className="sidebar-section">
           <h4>Eventos</h4>
           <p>Tus próximos eventos.</p>
@@ -224,7 +224,7 @@ export default function Feed() {
           <Link to="/eventos" className="sidebar-btn">Ver</Link>
         </div>
 
-        {/* 💬 Chat en línea */}
+        {/* Chat en línea */}
         <div className="sidebar-section">
           <h4>Chat en línea</h4>
           <p>Chatea con tus amigos.</p>

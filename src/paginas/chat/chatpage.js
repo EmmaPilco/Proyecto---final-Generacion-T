@@ -14,7 +14,7 @@ function ChatPage() {
     if (user) setCurrentUser(user);
   }, []);
 
-  // 🔹 Cargar conversación y mensajes
+  // Cargar conversación y mensajes
   useEffect(() => {
     const iniciarConversacion = async () => {
       if (!selectedFriend || !currentUser) return;
@@ -33,13 +33,13 @@ function ChatPage() {
         const convo = await res.json();
         setConversationId(convo.id);
 
-        // Cargar mensajes de esa conversación
+        // Carga mensajes de esa conversación
         const mensajesRes = await fetch(
           `${process.env.REACT_APP_API_URL}/api/messages/${convo.id}`
         );
         const mensajes = await mensajesRes.json();
 
-        // Determinar si los mensajes son propios o del otro
+        // Determina si los mensajes son propios o del otro
         const mensajesMarcados = mensajes.map((msg) => ({
           ...msg,
           isOwn: msg.sender_id === currentUser.id,
@@ -54,7 +54,7 @@ function ChatPage() {
     iniciarConversacion();
   }, [selectedFriend, currentUser]);
 
-  // 🔹 Enviar mensaje
+  // Enviar mensaje
   const handleSendMessage = async (text) => {
     if (!text.trim() || !selectedFriend || !currentUser || !conversationId) return;
 
@@ -80,7 +80,7 @@ function ChatPage() {
         }),
       });
 
-      // 🔄 Recargar mensajes después de guardar en BD
+      // Recargar mensajes después de guardar en la Base de Datos
       if (res.ok) {
         const mensajesRes = await fetch(
           `${process.env.REACT_APP_API_URL}/api/messages/${conversationId}`
