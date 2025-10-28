@@ -33,12 +33,12 @@ export default function Register() {
       const data = await res.json();
       
       if (data.success) {
-        // Guardar usuario en localStorage
+        
         localStorage.setItem("user", JSON.stringify(data.user));
         
         setMessage("✅ Registro exitoso! Redirigiendo al login...");
         
-        // Redirigir al login después de 1.5 segundos
+        
         setTimeout(() => {
           navigate("/login");
         }, 1500);

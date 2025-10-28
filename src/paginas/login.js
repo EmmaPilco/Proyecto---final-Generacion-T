@@ -31,13 +31,13 @@ export default function Login() {
       const data = await res.json();
       
       if (data.success) {
-        // Guardar token y usuario en localStorage
+        
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
         
         setMessage("✅ Bienvenido " + data.user.name);
 
-        // Redirigir al feed después de 1 segundo
+        
         setTimeout(() => {
           navigate("/feed"); 
         }, 1000);

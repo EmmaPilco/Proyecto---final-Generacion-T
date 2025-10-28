@@ -4,9 +4,9 @@ import Comments from "./Comments";
 import "./styles/feed.css";
 
 export default function Feed() {
-  // ========================================
+
   // ESTADOS - Sin cambios en lógica de DB
-  // ========================================
+
   const [user, setUser] = useState(() => JSON.parse(localStorage.getItem("user")));
   const [posts, setPosts] = useState([]);
   const [friends, setFriends] = useState([]);
@@ -18,17 +18,17 @@ export default function Feed() {
   const [menuAbierto, setMenuAbierto] = useState(false);
   const [darkMode, setDarkMode] = useState(localStorage.getItem("darkMode") === "true");
 
-  // ========================================
+
   // CARGAR USUARIO
-  // ========================================
+
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) setUser(JSON.parse(storedUser));
   }, []);
 
-  // ========================================
+
   // CARGAR POSTS Y AMIGOS - Sin cambios
-  // ========================================
+
   useEffect(() => {
     if (!user?.id) return;
 
@@ -57,17 +57,17 @@ export default function Feed() {
     fetchData();
   }, [user?.id]);
 
-  // ========================================
-  // MODO OSCURO - Solo afecta UI
-  // ========================================
+
+  // MODO OSCURO
+
   useEffect(() => {
     document.body.classList.toggle("dark-mode", darkMode);
     localStorage.setItem("darkMode", darkMode);
   }, [darkMode]);
 
-  // ========================================
+
   // CREAR POST - Sin cambios en lógica DB
-  // ========================================
+
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -114,9 +114,8 @@ export default function Feed() {
     }
   };
 
-  // ========================================
+ 
   // LIKE - Sin cambios en lógica DB
-  // ========================================
   const handleLike = async (postId) => {
     if (!user) return;
     try {
@@ -144,9 +143,8 @@ export default function Feed() {
     }
   };
 
-  // ========================================
-  // EDITAR POST - Sin cambios en lógica DB
-  // ========================================
+
+  // EDITAR POST 
   const handleEditPost = async (postId) => {
     try {
       const res = await fetch(`${process.env.REACT_APP_API_URL}/api/posts/${postId}`, {
@@ -168,9 +166,7 @@ export default function Feed() {
     }
   };
 
-  // ========================================
-  // ELIMINAR POST - Sin cambios en lógica DB
-  // ========================================
+  // ELIMINAR POST 
   const handleDeletePost = async (postId) => {
     if (!window.confirm("¿Seguro que deseas eliminar esta publicación?")) return;
     try {
@@ -186,15 +182,10 @@ export default function Feed() {
     }
   };
 
-  // ========================================
-  // RENDER - Mejoras solo visuales
-  // ========================================
   return (
     <div className={`feed-layout ${darkMode ? 'dark-mode' : ''}`}>
       
-      {/* ========================================
-          BOTÓN MENÚ HAMBURGUESA (MÓVIL)
-      ======================================== */}
+      {/* BOTÓN MENÚ (MÓVIL) */}
       <button 
         className="menu-toggle" 
         onClick={() => setMenuAbierto(!menuAbierto)}
@@ -205,9 +196,7 @@ export default function Feed() {
         <span></span>
       </button>
 
-      {/* ========================================
-          SIDEBAR IZQUIERDO - AMIGOS
-      ======================================== */}
+      {/* SIDEBAR IZQUIERDO - AMIGOS */}
       <aside className={`friends-sidebar ${menuAbierto ? 'active' : ''}`}>
         <h3>Amigos</h3>
         {friends.length === 0 ? (
@@ -230,9 +219,7 @@ export default function Feed() {
         )}
       </aside>
 
-      {/* ========================================
-          FEED CENTRAL
-      ======================================== */}
+      {/* FEED CENTRAL */}
       <main className="feed-container">
         <h2 className="feed-title">Últimas publicaciones</h2>
 
@@ -388,7 +375,7 @@ export default function Feed() {
                 </span>
               </div>
 
-              {/* COMPONENTE DE COMENTARIOS */}
+              {/* COMENTARIOS */}
               <Comments 
                 postId={post.id} 
                 posts={posts} 
@@ -399,9 +386,7 @@ export default function Feed() {
         </div>
       </main>
 
-      {/* ========================================
-          SIDEBAR DERECHO
-      ======================================== */}
+      {/*SIDEBAR DERECHO*/}
       <aside className="right-sidebar">
         
         {/* MODO OSCURO */}
@@ -422,13 +407,6 @@ export default function Feed() {
           <h4>Destacados</h4>
           <p>Los posts con más me gusta.</p>
           <Link to="/destacados" className="sidebar-btn">Ver</Link>
-        </div>
-
-        {/* USUARIOS SUGERIDOS */}
-        <div className="sidebar-section">
-          <h4>Usuarios sugeridos</h4>
-          <p>Personas que podrías seguir.</p>
-          <Link to="/usuarios-sugeridos" className="sidebar-btn">Ver</Link>
         </div>
 
         {/* EVENTOS */}

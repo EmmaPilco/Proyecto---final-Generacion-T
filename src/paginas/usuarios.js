@@ -22,7 +22,6 @@ export default function Usuarios() {
     fetchUsers();
   }, []);
 
-  // Filtrado en frontend
   const filtered = users.filter(
     (u) =>
       u.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -52,7 +51,7 @@ export default function Usuarios() {
         onChange={(e) => setSearch(e.target.value)}
       />
 
-      {/* Si hay búsqueda, mostrar resultados */}
+      {/* muestra resultados */}
       {search && (
         <>
           <h3 className="section-title">📋 Resultados de búsqueda</h3>

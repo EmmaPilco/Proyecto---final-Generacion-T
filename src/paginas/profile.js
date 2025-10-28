@@ -36,7 +36,7 @@ export default function Profile() {
         setLoading(false);
       });
 
-    // Consultar si lo sigo (solo si no es mi perfil)
+    // Consultar si lo sigo 
     if (parseInt(id) !== storedUser.id) {
       fetch(`${process.env.REACT_APP_API_URL}/api/follow/check/${storedUser.id}/${id}`)
         .then((res) => res.json())
