@@ -1,88 +1,374 @@
+/* ========================================
+   VARIABLES DE COLOR - TEMA ROJO
+======================================== */
+:root {
+  --rojo-principal: #dc2626;
+  --rojo-oscuro: #991b1b;
+  --rojo-claro: #fca5a5;
+  --rojo-hover: #b91c1c;
+  
+  --gris-fondo: #f8fafc;
+  --gris-claro: #e2e8f0;
+  --gris-medio: #64748b;
+  --gris-oscuro: #334155;
+  
+  --blanco: #ffffff;
+  --negro: #1e293b;
+  
+  --verde-success: #10b981;
+  --verde-hover: #059669;
+}
+
+/* ========================================
+   CONTENEDOR PRINCIPAL
+======================================== */
 .usuarios-container {
-  max-width: 800px;
+  max-width: 900px;
   margin: 20px auto;
-  padding: 0 15px;
-  color: #fff;
+  padding: 0 20px;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  animation: fadeIn 0.6s ease;
 }
 
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ========================================
+   ESTADO DE CARGA
+======================================== */
+.loading-wrapper {
+  text-align: center;
+  padding: 60px 20px;
+  background: var(--blanco);
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+.loading-text {
+  font-size: 1.2rem;
+  color: var(--gris-medio);
+  margin: 0;
+}
+
+/* ========================================
+   TÍTULO PRINCIPAL
+======================================== */
 .usuarios-title {
-  font-size: 1.8rem;
-  font-weight: bold;
-  margin-bottom: 15px;
-  color: #dc2626;
-  border-bottom: 2px solid #e5e7eb;
-  padding-bottom: 5px;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 25px;
+  color: var(--rojo-principal);
+  border-bottom: 3px solid var(--rojo-claro);
+  padding-bottom: 12px;
+  animation: slideDown 0.5s ease;
 }
 
-/* Barra búsqueda */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ========================================
+   BARRA DE BÚSQUEDA
+======================================== */
 .usuarios-search {
   width: 100%;
-  padding: 10px;
-  border-radius: 8px;
-  border: none;
+  padding: 15px 20px;
+  border-radius: 12px;
+  border: 2px solid var(--gris-claro);
   outline: none;
-  margin-bottom: 20px;
-  font-size: 14px;
-  background: #6b7280;
-  color: white;
+  margin-bottom: 25px;
+  font-size: 15px;
+  font-family: inherit;
+  background: var(--blanco);
+  color: var(--negro);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.usuarios-search:focus {
+  border-color: var(--rojo-principal);
+  box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.1);
+  transform: translateY(-2px);
 }
 
 .usuarios-search::placeholder {
-  color: #aaa;
+  color: var(--gris-medio);
 }
 
-/* Lista */
+/* ========================================
+   SUBTÍTULOS DE SECCIÓN
+======================================== */
+.section-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--rojo-principal);
+  margin: 25px 0 15px 0;
+  padding-left: 10px;
+  border-left: 4px solid var(--rojo-principal);
+}
+
+/* ========================================
+   LISTA DE USUARIOS
+======================================== */
 .usuarios-list {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
 }
 
+/* ========================================
+   TARJETAS DE USUARIO
+======================================== */
 .usuario-card {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  background: #6b7280;
-  color: #ffffff;
-  border-radius: 12px;
-  padding: 12px 16px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  background: var(--blanco);
+  border-radius: 15px;
+  padding: 25px 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  animation: fadeInUp 0.5s ease;
+  position: relative;
+  overflow: hidden;
 }
 
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.usuario-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, var(--rojo-principal), var(--rojo-claro));
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.usuario-card:hover::before {
+  transform: scaleX(1);
+}
+
+.usuario-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* ========================================
+   AVATAR DEL USUARIO
+======================================== */
 .usuario-avatar {
-  width: 50px;
-  height: 50px;
+  width: 90px;
+  height: 90px;
   border-radius: 50%;
   object-fit: cover;
+  border: 4px solid var(--rojo-claro);
+  margin-bottom: 15px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
 }
 
+.usuario-card:hover .usuario-avatar {
+  transform: scale(1.1);
+  border-color: var(--rojo-principal);
+}
+
+/* ========================================
+   INFORMACIÓN DEL USUARIO
+======================================== */
 .usuario-info {
-  flex: 1;
-  margin-left: 15px;
+  text-align: center;
+  margin-bottom: 15px;
+  width: 100%;
 }
 
 .usuario-info h3 {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 600;
+  margin: 0 0 5px 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--negro);
+  border: none;
+  padding: 0;
 }
 
 .usuario-info p {
   margin: 0;
-  font-size: 13px;
-  color: gray;
+  font-size: 14px;
+  color: var(--gris-medio);
+  font-weight: 500;
 }
 
+/* ========================================
+   BOTÓN VER PERFIL
+======================================== */
 .usuario-btn {
-  background: #dc2626;
-  color: #fff;
-  padding: 8px 14px;
-  border-radius: 6px;
+  background: var(--rojo-principal);
+  color: var(--blanco);
+  padding: 10px 24px;
+  border-radius: 10px;
   text-decoration: none;
   font-size: 14px;
-  transition: background 0.3s;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
+  display: inline-block;
+  width: 100%;
+  text-align: center;
 }
 
 .usuario-btn:hover {
-  background: #991b1b;
+  background: var(--rojo-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+}
+
+.usuario-btn:active {
+  transform: translateY(0);
+}
+
+/* ========================================
+   MENSAJE SIN RESULTADOS
+======================================== */
+.no-results {
+  text-align: center;
+  color: var(--gris-medio);
+  font-size: 1.1rem;
+  padding: 40px 20px;
+  background: var(--blanco);
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+/* ========================================
+   MODO OSCURO
+======================================== */
+body.dark-mode .usuarios-container {
+  color: #e2e8f0;
+}
+
+body.dark-mode .usuarios-title {
+  color: var(--rojo-claro);
+}
+
+body.dark-mode .section-title {
+  color: var(--rojo-claro);
+}
+
+body.dark-mode .usuarios-search {
+  background: #334155;
+  color: #e2e8f0;
+  border-color: #475569;
+}
+
+body.dark-mode .usuarios-search::placeholder {
+  color: #94a3b8;
+}
+
+body.dark-mode .usuario-card {
+  background: #1e293b;
+}
+
+body.dark-mode .usuario-info h3 {
+  color: #e2e8f0;
+}
+
+body.dark-mode .usuario-info p {
+  color: #94a3b8;
+}
+
+body.dark-mode .no-results {
+  background: #1e293b;
+  color: #94a3b8;
+}
+
+body.dark-mode .loading-wrapper {
+  background: #1e293b;
+}
+
+body.dark-mode .loading-text {
+  color: #94a3b8;
+}
+
+/* ========================================
+   RESPONSIVE
+======================================== */
+
+/* Tablets */
+@media (max-width: 768px) {
+  .usuarios-container {
+    padding: 0 15px;
+  }
+
+  .usuarios-title {
+    font-size: 1.6rem;
+  }
+
+  .usuarios-list {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 15px;
+  }
+
+  .usuario-card {
+    padding: 20px 15px;
+  }
+
+  .usuario-avatar {
+    width: 80px;
+    height: 80px;
+  }
+
+  .section-title {
+    font-size: 1.2rem;
+  }
+}
+
+/* Móviles */
+@media (max-width: 480px) {
+  .usuarios-title {
+    font-size: 1.4rem;
+  }
+
+  .usuarios-list {
+    grid-template-columns: 1fr;
+  }
+
+  .usuario-card {
+    padding: 20px;
+  }
+
+  .usuarios-search {
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+
+  .section-title {
+    font-size: 1.1rem;
+  }
 }

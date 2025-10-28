@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import "./styles/style.css";
 
 export default function Register() {
@@ -11,6 +11,7 @@ export default function Register() {
   });
 
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -19,6 +20,8 @@ export default function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setMessage("");
 
     try {
       const res = await fetch(`${process.env.REACT_APP_API_URL}/api/register`, {
@@ -28,35 +31,87 @@ export default function Register() {
       });
 
       const data = await res.json();
+      
       if (data.success) {
-        
+        // Guardar usuario en localStorage
         localStorage.setItem("user", JSON.stringify(data.user));
-
-        setMessage("Registro exitoso, ahora puedes iniciar sesión.");
-        setTimeout(() => navigate("/login"), 1500);
+        
+        setMessage("✅ Registro exitoso! Redirigiendo al login...");
+        
+        // Redirigir al login después de 1.5 segundos
+        setTimeout(() => {
+          navigate("/login");
+        }, 1500);
       } else {
-        setMessage("Error al registrar: " + (data.message || ""));
+        setMessage("❌ " + (data.message || "Error al registrar"));
+        setLoading(false);
       }
     } catch (err) {
       console.error(err);
-      setMessage("Error en el servidor.");
+      setMessage("❌ Error de conexión con el servidor");
+      setLoading(false);
     }
   };
 
   return (
     <div className="container">
       <div className="form-container">
-        <h2>Registro</h2>
+        <h2>Crear Cuenta</h2>
+        
         <form onSubmit={handleSubmit}>
-          <input type="text" name="name" placeholder="Nombre" onChange={handleChange} required />
-          <input type="text" name="username" placeholder="Usuario" onChange={handleChange} required />
-          <input type="email" name="email" placeholder="Correo electrónico" onChange={handleChange} required />
-          <input type="password" name="password" placeholder="Contraseña" onChange={handleChange} required />
-          <button type="submit">Registrarse</button>
+          <input 
+            type="text" 
+            name="name" 
+            placeholder="👤 Nombre completo" 
+            value={formData.name}
+            onChange={handleChange} 
+            required 
+            disabled={loading}
+            autoComplete="name"
+          />
+          <input 
+            type="text" 
+            name="username" 
+            placeholder="@usuario" 
+            value={formData.username}
+            onChange={handleChange} 
+            required 
+            disabled={loading}
+            autoComplete="username"
+          />
+          <input 
+            type="email" 
+            name="email" 
+            placeholder="📧 Correo electrónico" 
+            value={formData.email}
+            onChange={handleChange} 
+            required 
+            disabled={loading}
+            autoComplete="email"
+          />
+          <input 
+            type="password" 
+            name="password" 
+            placeholder="🔒 Contraseña" 
+            value={formData.password}
+            onChange={handleChange} 
+            required 
+            disabled={loading}
+            minLength="6"
+            autoComplete="new-password"
+          />
+          <button type="submit" disabled={loading}>
+            {loading ? "⏳ Registrando..." : "Registrarse"}
+          </button>
         </form>
-        <p>{message}</p>
+
+        {message && <p>{message}</p>}
+
+        {/* Enlace de login */}
+        <p className="register-text">
+          ¿Ya tienes cuenta? <Link to="/login">Inicia sesión aquí</Link>
+        </p>
       </div>
     </div>
   );
 }
-
